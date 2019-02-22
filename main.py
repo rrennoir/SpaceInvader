@@ -112,11 +112,13 @@ def main():
 
     pg.init()
 
+    # Setup window and game clock.
     displaySize = [300, 300]
     screen = pg.display.set_mode(displaySize)
     background = pg.Surface(screen.get_size())
     clock = pg.time.Clock()
 
+    # Setup GameData.
     invaderData = invader()
     direction = 1
     gameTick = 0
@@ -125,18 +127,21 @@ def main():
     
     Ended = False
     while not Ended:
-
+        
+        # Set the game to 60 update per second and count gameTick
         clock.tick(60)
         if gameTick == 60:
             gameTick = 0
         gameTick +=1
 
+        # Quit the game if the quit boutton is pressed
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 Ended = False
                 quit()
-            
-        keys=pg.key.get_pressed()
+
+        # Check if LEFT or RIGHT arrow key is pressed and allow only 10 update per second.  
+        keys = pg.key.get_pressed()
         if keys[pg.K_LEFT] and (gameTick % 6):
 
                 player[0] -= 2
@@ -149,19 +154,23 @@ def main():
                 if player[0] >= 280:
                     player[0] = 280
 
+        # Check if SPACE is pressed and allow only 5 update per second (so 5 shoot/s).
         if keys[pg.K_SPACE] and (gameTick % 12 == 0):
                 laserList.append([player[0] + 3, player[1] + 10])
 
-
-        draw(screen, invaderData, player, laserList)
-
+        # Game Update.
         Ended = checkEndGame(invaderData)
         invaderData , direction, laserList = updateInvader(invaderData, direction, laserList, gameTick)
 
+        # Game Drawn.
+        draw(screen, invaderData, player, laserList)
+
+        # Display update pygame.
         pg.display.update()
         screen.blit(background, (0, 0))
 
-
+    
+    # Check If game win or lost.
     if invaderData == []:
         print("Win")
     
