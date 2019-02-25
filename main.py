@@ -4,11 +4,14 @@ from random import randint
 
 def invader():
 
+    # Create invader data structur.
     invaderData = []
     for j in range(3):
         for invader in range(10):
 
-            invaderPosition = [(invader * 25) + 25, j * 25 + 75]
+            # offset the X axis by 25 pixel to center the invader platoon and offset the Y axis by 75 pixel to let place for the UI on the top.
+            invaderPosition = [(invader * 25) + 25, j * 25 + 75] 
+
             invaderData.append(invaderPosition)
 
     return invaderData
@@ -16,10 +19,10 @@ def invader():
 
 def draw(screen, dataInvader, player, playerLaser, invaderLaser):
 
-    # Elipse size.
+    # Sizes.
     sizeInvater = (15, 15)
-    sizePlayer = (20, 15)
-    sizeLaser = (5, 9)
+    # sizePlayer = (20, 15)
+    sizeLaser = (2, 7)
 
     # RGB colors.
     yellow = (255, 255, 0)
@@ -28,29 +31,32 @@ def draw(screen, dataInvader, player, playerLaser, invaderLaser):
     green = (0, 255, 0)
 
     # Draw invader.
-    for element in dataInvader:
-        baseRect = pg.Rect(element, sizeInvater)
-        pg.draw.ellipse(screen, yellow, baseRect)
+    for invaderPosition in dataInvader:
+        invaderRect = pg.Rect(invaderPosition, sizeInvater)
+        pg.draw.ellipse(screen, yellow, invaderRect)
 
     # Draw the player lasers.
-    for laser in playerLaser:
-        baseRect = pg.Rect(laser, sizeLaser)
-        pg.draw.ellipse(screen, blue, baseRect)
-
+    for playerLaserPosition in playerLaser:
+        playerLaserRect = pg.Rect(playerLaserPosition, sizeLaser)
+        pg.draw.rect(screen, blue, playerLaserRect)
+        
     # Draw the invader lasers.
-    for laser in invaderLaser:
-        baseRect = pg.Rect(laser, sizeLaser)
-        pg.draw.ellipse(screen, green, baseRect)
+    for invaderLaserPosition in invaderLaser:
+        invaderLaserRect = pg.Rect(invaderLaserPosition, sizeLaser)
+        pg.draw.rect(screen, green, invaderLaserRect)
 
     # Draw player
-    baseRect = pg.Rect(player[1], sizePlayer)
-    pg.draw.ellipse(screen, red, baseRect)
+    # playerRect = pg.Rect(player[1], sizePlayer)
+    # pg.draw.ellipse(screen, red, playerRect)
+    playerCoord = player[1]
+    pg.draw.polygon(screen, red, ((playerCoord[0], playerCoord[1]), (playerCoord[0] + 10, playerCoord[1] - 15), (playerCoord[0] + 20, playerCoord[1])))
 
 
 def updateInvader(invaderData, direction, laserList, invaderLaserList, player, gameTick):
 
     laserList, invaderData, invaderLaserList, player = laserHit(laserList, invaderData, invaderLaserList, player)
 
+    # update invader position every second aka every 60 frames.
     if gameTick == 60:
         shiftDown = 0
         directionNew = changeDirection(invaderData, direction)
@@ -70,7 +76,7 @@ def updateInvader(invaderData, direction, laserList, invaderLaserList, player, g
 
         direction = directionNew
     
-    # Update laser position
+    # Update laser position by 2 pixel every frame.
     for i in range(len(laserList)):
         laserList[i][1] -= 2
 
@@ -96,9 +102,11 @@ def changeDirection(invaderData, direction):
 
 def laserHit(playerLaserList, invaderData, invaderLaserList, player):
 
-    if playerLaserList == [] or invaderLaserList == []:
+    # Lists empty get out of the function.
+    if playerLaserList == [] and invaderLaserList == []:
         return playerLaserList, invaderData, invaderLaserList, player
 
+    # Init the fnction data. 
     playerLaserToDelete = []
     invaderLaserToDelete = []
     invaderToDelete = []
@@ -113,8 +121,8 @@ def laserHit(playerLaserList, invaderData, invaderLaserList, player):
 
     # Check if a invader lasers is in the player hit box.
     for laser in invaderLaserList:
-
-        if (laser[0] >= player[1][0] and laser[0] <= player[1][0] + 15) and (laser[1] <= player[1][1] + 15 and laser[1] >= player[1][1]):
+        
+        if (laser[0] >= player[1][0] and laser[0] <= player[1][0] + 20) and (laser[1] + 7 >= player[1][1] and laser[1] + 7 <= player[1][1] + 15):
             invaderLaserToDelete.append(laser)
             player[0] -= 1
             
@@ -194,7 +202,7 @@ def main():
 
         # Check if SPACE is pressed and allow only 5 update per second (so 5 shoot/s).
         if keys[pg.K_SPACE] and (gameTick % 12 == 0):
-                laserList.append([player[1][0] + 3, player[1][1] + 10])
+                laserList.append([player[1][0] + 10, player[1][1] - 15])
 
         # Game Update.
         Ended = checkEndGame(invaderData, player)
