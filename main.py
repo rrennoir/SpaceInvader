@@ -1,4 +1,5 @@
 import pygame as pg
+import pygame.freetype
 from random import randint
 
 
@@ -46,8 +47,6 @@ def draw(screen, dataInvader, player, playerLaser, invaderLaser):
         pg.draw.rect(screen, green, invaderLaserRect)
 
     # Draw player
-    # playerRect = pg.Rect(player[1], sizePlayer)
-    # pg.draw.ellipse(screen, red, playerRect)
     playerCoord = player[1]
     pg.draw.polygon(screen, red, ((playerCoord[0], playerCoord[1]), (playerCoord[0] + 10, playerCoord[1] - 15), (playerCoord[0] + 20, playerCoord[1])))
 
@@ -144,19 +143,22 @@ def laserHit(playerLaserList, invaderData, invaderLaserList, player):
 def checkEndGame(invaderData, player):
     
     if invaderData == [] or player[0] <= 0:
-        return True
+        return False
 
     for invader in invaderData:
         if invader[1] + 15 >= 300:
-            return True
+            return False
 
-    return False
+    return True
 
 
-def main():
+def game():
 
     pg.init() 
 
+    # Setup the font.
+    # GAME_FONT = pg.freetype.SysFont("Comic Sans MS", 12)
+    
     # Setup window and game clock.
     displaySize = [300, 300]
     screen = pg.display.set_mode(displaySize)
@@ -167,12 +169,13 @@ def main():
     invaderData = invader()
     direction = 1
     gameTick = 0 
+    # score = 0
     player = [3, [150, 270]]
     laserList = []
     invaderLaserList = []
     
-    Ended = False
-    while not Ended:
+    runnning = True
+    while runnning:
         
         # Set the game to 60 update per second and count gameTick
         clock.tick(60)
@@ -183,30 +186,33 @@ def main():
         # Quit the game if the quit boutton is pressed
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                Ended = False
+                runnning = False
                 quit()
 
         # Check if LEFT or RIGHT arrow key is pressed and allow only 10 update per second.  
         keys = pg.key.get_pressed()
         if keys[pg.K_LEFT] and (gameTick % 6):
 
-                player[1][0] -= 2
-                if player[1][0] <= 0:
-                    player[1][0] = 0
+            player[1][0] -= 2
+            if player[1][0] <= 0:
+                player[1][0] = 0
 
         if keys[pg.K_RIGHT] and (gameTick % 6):
 
-                player[1][0] += 2
-                if player[1][0] >= 280:
-                    player[1][0] = 280
+            player[1][0] += 2
+            if player[1][0] >= 280:
+                player[1][0] = 280
 
         # Check if SPACE is pressed and allow only 5 update per second (so 5 shoot/s).
         if keys[pg.K_SPACE] and (gameTick % 12 == 0):
-                laserList.append([player[1][0] + 10, player[1][1] - 15])
+            laserList.append([player[1][0] + 10, player[1][1] - 15])
 
         # Game Update.
-        Ended = checkEndGame(invaderData, player)
+        runnning = checkEndGame(invaderData, player)
         invaderData , direction, laserList, invaderLaserList, player = updateInvader(invaderData, direction, laserList, invaderLaserList, player, gameTick)
+
+        # UI update.
+        # textSurface = GAME_FONT.render("Life: {HP} Score: {SCORE}".format(HP=player[0], SCORE=score), (255, 255, 255))
 
         # Game Drawn.
         draw(screen, invaderData, player, laserList, invaderLaserList)
@@ -215,13 +221,32 @@ def main():
         pg.display.update()
         screen.blit(background, (0, 0))
 
-    
     # Check If game win or lost.
     if invaderData == [] and player[0] > 0:
-        print("Win")
-    
+        return "Game Win"
+
     else:
-        print("Lost")
+        return "Game Lost"
+
+
+def main():
+    play = True
+    while play:
+
+        result = game()
+
+        # screen.pygame.Surface.fill((0, 0, 0))
+        # textSurface = GAME_FONT.render("{}\nPress any key to try again or use quit to exit.".format(result)), (255, 255, 255))
+        # screen.blit(textSurface, (0, 0))
+
+        print(result)
+        print("Press any key to try again or use quit to exit.")
+
+
+        text = input()
+        if text == "quit":
+            play = False
+            quit()
 
 
 if __name__ == "__main__":
