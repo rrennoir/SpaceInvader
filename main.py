@@ -10,8 +10,8 @@ def invader():
     for j in range(3):
         for invader in range(10):
 
-            # offset the X axis by 25 pixel to center the invader platoon and offset the Y axis by 75 pixel to let place for the UI on the top.
-            invaderPosition = [(invader * 25) + 25, j * 25 + 75] 
+            # offset the X axis by 25 pixel to center the invader platoon and offset the Y axis by 50 pixel to let place for the UI on the top.
+            invaderPosition = [(invader * 25) + 25, j * 25 + 50] 
 
             invaderData.append(invaderPosition)
 
@@ -152,18 +152,29 @@ def checkEndGame(invaderData, player):
     return True
 
 
-def game():
+def blitText(screen, text, pos, font, color):
+    textToPrint = [text.split(' ') for text in text.splitlines()]
+    space = font.size(' ')[0]  # The width of a space.
+    maxWidth = 250
+    maxHeight = 300
+    pos = (75, 125)
+    x = pos[0]
+    y = pos[1]
 
-    pg.init() 
+    for line in textToPrint:
+        for word in line:
+            word_surface = font.render(word, 0, color)
+            wordWidth, wordHeight = word_surface.get_size()
+            if x + wordWidth >= maxWidth:
+                x = pos[0]  # Reset the x.
+                y += wordHeight  # Start on new row.
+            screen.blit(word_surface, (x, y))
+            x += wordWidth + space
+        x = pos[0]  # Reset the x.
+        y += wordHeight  # Start on new row.
 
-    # Setup the font.
-    # GAME_FONT = pg.freetype.SysFont("Comic Sans MS", 12)
-    
-    # Setup window and game clock.
-    displaySize = [300, 300]
-    screen = pg.display.set_mode(displaySize)
-    background = pg.Surface(screen.get_size())
-    clock = pg.time.Clock()
+
+def game(screen, background, clock, font):
 
     # Setup GameData.
     invaderData = invader()
@@ -212,7 +223,7 @@ def game():
         invaderData , direction, laserList, invaderLaserList, player = updateInvader(invaderData, direction, laserList, invaderLaserList, player, gameTick)
 
         # UI update.
-        # textSurface = GAME_FONT.render("Life: {HP} Score: {SCORE}".format(HP=player[0], SCORE=score), (255, 255, 255))
+        uiText = font.render("test", 1, (255, 255, 255))
 
         # Game Drawn.
         draw(screen, invaderData, player, laserList, invaderLaserList)
@@ -220,6 +231,7 @@ def game():
         # Display update pygame.
         pg.display.update()
         screen.blit(background, (0, 0))
+        screen.blit(uiText, (10, 10))
 
     # Check If game win or lost.
     if invaderData == [] and player[0] > 0:
@@ -230,23 +242,50 @@ def game():
 
 
 def main():
+
+    pg.init()
+
+    # Setup the font.
+    font = pygame.font.SysFont("Comic Sans MS", 15)
+
+    # Setup window and game clock.
+    displaySize = [300, 300]
+    screen = pg.display.set_mode(displaySize)
+    background = pg.Surface(screen.get_size())
+    clock = pg.time.Clock()
+
     play = True
     while play:
 
-        result = game()
+        result = game(screen, background, clock, font)
 
-        # screen.pygame.Surface.fill((0, 0, 0))
-        # textSurface = GAME_FONT.render("{}\nPress any key to try again or use quit to exit.".format(result)), (255, 255, 255))
-        # screen.blit(textSurface, (0, 0))
+        screen.fill((0, 0, 0))
 
-        print(result)
-        print("Press any key to try again or use quit to exit.")
+        color = (255, 255, 255)
+        text = "Press SPACE to try again \nor press ESCAPE to exit."
+        wordSurface = font.render(result, 0, color)
+        screen.blit(wordSurface, (115, 80))
+        blitText(screen, text, (75, 125), font, color)
+        pg.display.update()
 
+        input = True
+        while input:
 
-        text = input()
-        if text == "quit":
-            play = False
-            quit()
+            # Quit the game if the quit boutton is pressed
+            for event in pg.event.get():
+                if event.type == pg.QUIT:
+                    input = False
+                    quit()
+            
+            # Continue to play when SPACE is pressed.
+            keys = pg.key.get_pressed()
+            if keys[pg.K_SPACE]:
+                input = False
+
+            # Quit if ESCAPE is pressed.
+            if keys[pg.K_ESCAPE]:
+                input = False
+                quit()
 
 
 if __name__ == "__main__":
