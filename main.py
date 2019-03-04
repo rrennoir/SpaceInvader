@@ -155,9 +155,8 @@ def checkEndGame(invaderData, player):
 def blitText(screen, text, pos, font, color):
     textToPrint = [text.split(' ') for text in text.splitlines()]
     space = font.size(' ')[0]  # The width of a space.
-    maxWidth = 250
+    maxWidth = 300
     maxHeight = 300
-    pos = (75, 125)
     x = pos[0]
     y = pos[1]
 
@@ -177,7 +176,7 @@ def blitText(screen, text, pos, font, color):
 def game(screen, background, clock, font):
 
     # Setup GameData.
-    invaderData = invader()
+    invaderData = []#invader()
     direction = 1
     gameTick = 0 
     # score = 0
@@ -246,13 +245,39 @@ def main():
     pg.init()
 
     # Setup the font.
-    font = pygame.font.SysFont("Comic Sans MS", 15)
+    font = pg.font.SysFont("Comic Sans MS", 15)
+    fontIntro = pg.font.SysFont("Comic Sans MS", 30)
+    textColor = (255, 255, 255)
 
     # Setup window and game clock.
     displaySize = [300, 300]
     screen = pg.display.set_mode(displaySize)
     background = pg.Surface(screen.get_size())
     clock = pg.time.Clock()
+
+    # Intro
+    textIntro = "SPACE INVADER"
+    textIntroInput = "Press SPACE to play or\n press ESCAPE to exit."
+    textIntroSurface = fontIntro.render(textIntro, 0, textColor)
+    blitText(screen, textIntroInput, (65, 125), font, textColor)
+    screen.blit(textIntroSurface, (25, 45))
+
+    # blitText(screen, textIntro, (0,0), fontIntro, textColor)
+    pg.display.update()
+
+    input = True
+    while input:
+
+        # Quit the game if the quit boutton is pressed
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                input = False
+                quit()
+        
+        # Continue to play when SPACE is pressed.
+        keys = pg.key.get_pressed()
+        if keys[pg.K_SPACE]:
+            input = False
 
     play = True
     while play:
@@ -261,11 +286,11 @@ def main():
 
         screen.fill((0, 0, 0))
 
-        color = (255, 255, 255)
-        text = "Press SPACE to try again \nor press ESCAPE to exit."
-        wordSurface = font.render(result, 0, color)
+        textEndGame = "Press SPACE to try again \nor press ESCAPE to exit."
+        wordSurface = font.render(result, 0, textColor)
         screen.blit(wordSurface, (115, 80))
-        blitText(screen, text, (75, 125), font, color)
+        blitText(screen, textEndGame, (65, 125), font, textColor)
+
         pg.display.update()
 
         input = True
