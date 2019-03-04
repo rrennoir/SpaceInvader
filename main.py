@@ -176,13 +176,14 @@ def blitText(screen, text, pos, font, color):
 def game(screen, background, clock, font):
 
     # Setup GameData.
-    invaderData = []#invader()
+    invaderData = invader()
     direction = 1
     gameTick = 0 
     # score = 0
     player = [3, [150, 270]]
     laserList = []
     invaderLaserList = []
+    textColor = (255, 255, 255)
     
     runnning = True
     while runnning:
@@ -222,7 +223,8 @@ def game(screen, background, clock, font):
         invaderData , direction, laserList, invaderLaserList, player = updateInvader(invaderData, direction, laserList, invaderLaserList, player, gameTick)
 
         # UI update.
-        uiText = font.render("test", 1, (255, 255, 255))
+        uiText = "Life: {}    Score: 0".format(player[0])
+        blitText(screen, uiText, (0, 0), font, textColor)
 
         # Game Drawn.
         draw(screen, invaderData, player, laserList, invaderLaserList)
@@ -230,7 +232,6 @@ def game(screen, background, clock, font):
         # Display update pygame.
         pg.display.update()
         screen.blit(background, (0, 0))
-        screen.blit(uiText, (10, 10))
 
     # Check If game win or lost.
     if invaderData == [] and player[0] > 0:
