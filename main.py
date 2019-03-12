@@ -4,6 +4,13 @@ from random import randint
 
 
 def invader():
+    """
+    Setup all invader position into a list of coordinate.
+
+    Return:
+    -------
+    invaderData: list of coordinate (list)
+    """
 
     # Create invader data structur.
     invaderData = []
@@ -19,6 +26,17 @@ def invader():
 
 
 def draw(screen, dataInvader, player, playerLaser, invaderLaser):
+    """
+    Drawn object on the screen, like player, lasers and invaders.
+
+    Parameters:
+    -----------
+    screen: surface of the window (surface)
+    dataInvader: coordinate of the invaders (list)
+    player: information about the player (list)
+    playerLaser: coordinate of the lasers shoot by the player (list)
+    invaderLaser: coordinate of the lasers shoot by the invaders (list)
+    """
 
     # Sizes.
     sizeInvater = (15, 15)
@@ -52,6 +70,26 @@ def draw(screen, dataInvader, player, playerLaser, invaderLaser):
 
 
 def updateInvader(invaderData, direction, laserList, invaderLaserList, player, gameTick):
+    """
+    Update invaders, like position, laser position they have shootted and make them shoot randomly.
+
+    Parameters:
+    -----------
+    invaderData: coordinate of the invaders (list)
+    direction: Direction in witch way the invader array is going 1 or -1, if set -1 the direction will be reversed (int)
+    playerLaser: coordinate of the lasers shoot by the player (list)
+    invaderLaserList: coordinate of the lasers shoot by the invaders (list)
+    player: information about the player (list)
+    gameTick: Number of tick elapsed this second, 1 tick = 16ms, 60 tick = 1s (int)
+
+    Return:
+    -------
+    invaderData: Updated coordinate of the invaders (list)
+    direction: Direction in witch way the invader array is going 1 or -1, if set -1 the direction will be reversed (int)
+    laserList: Updated coordinate of the lasers shoot by the player (list)
+    invaderLaserList: Updated coordinate of the lasers shoot by the invaders (list)
+    player: Updated information about the player (list)
+    """
 
     laserList, invaderData, invaderLaserList, player = laserHit(laserList, invaderData, invaderLaserList, player)
 
@@ -86,6 +124,18 @@ def updateInvader(invaderData, direction, laserList, invaderLaserList, player, g
 
 
 def changeDirection(invaderData, direction):
+    """
+    Change the direction of all invader alive every time an invader hit the screen border
+
+    Parameters:
+    -----------
+    invaderData: coordinate of the invaders (list)
+    direction: Direction in witch way the invader array is going 1 or -1, if set -1 the direction will be reversed (int)
+
+    Return:
+    -------
+    direction: Updated Direction in witch way the invader array is going 1 or -1 (int)
+    """
 
     change = False
     for element in invaderData:
@@ -100,6 +150,23 @@ def changeDirection(invaderData, direction):
 
 
 def laserHit(playerLaserList, invaderData, invaderLaserList, player):
+    """
+    Check if a laser hit a player or an invader, update the hitted target and delete the laser.
+
+    Parameters:
+    -----------
+    playerLaserList: coordinate of the lasers shoot by the player (list)
+    invaderData: coordinate of the invaders (list)
+    invaderLaserList: coordinate of the lasers shoot by the invaders (list)
+    player: information about the player (list)
+
+    Return:
+    -------
+    playerLaserList: Updated coordinate of the lasers shoot by the player (list)
+    invaderData: Updated coordinate of the invaders (list)
+    invaderLaserList: Updated coordinate of the lasers shoot by the invaders (list)
+    player: Updated information about the player (list)
+    """
 
     # Lists empty get out of the function.
     if playerLaserList == [] and invaderLaserList == []:
@@ -141,7 +208,19 @@ def laserHit(playerLaserList, invaderData, invaderLaserList, player):
 
 
 def checkEndGame(invaderData, player):
-    
+    """
+    Check if the game is finished.
+
+    Parameters:
+    -----------
+    invaderData: coordinate of the invaders (list)
+    player: Information about the player (list)
+
+    return:
+    -------
+    Result: if the game is finished retrun false, true otherwise.
+    """
+
     if invaderData == [] or player[0] <= 0:
         return False
 
@@ -161,16 +240,23 @@ def blitText(screen, text, pos, font, color):
     y = pos[1]
 
     for line in textToPrint:
+
         for word in line:
             word_surface = font.render(word, 0, color)
             wordWidth, wordHeight = word_surface.get_size()
+
+            # If the word go further
             if x + wordWidth >= maxWidth:
                 x = pos[0]  # Reset the x.
                 y += wordHeight  # Start on new row.
+
+            # Draw to the screen and pass to the nex x value.
             screen.blit(word_surface, (x, y))
             x += wordWidth + space
-        x = pos[0]  # Reset the x.
-        y += wordHeight  # Start on new row.
+
+        # Reset x axis and start a new row. 
+        x = pos[0]
+        y += wordHeight
 
 
 def game(screen, background, clock, font):
