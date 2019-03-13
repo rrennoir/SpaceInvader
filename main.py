@@ -172,7 +172,7 @@ def laserHit(playerLaserList, invaderData, invaderLaserList, player):
     if playerLaserList == [] and invaderLaserList == []:
         return playerLaserList, invaderData, invaderLaserList, player
 
-    # Init the fnction data. 
+    # Init the function data. 
     playerLaserToDelete = []
     invaderLaserToDelete = []
     invaderToDelete = []
@@ -232,6 +232,18 @@ def checkEndGame(invaderData, player):
 
 
 def blitText(screen, text, pos, font, color):
+    """
+    Print text on a surface.
+
+    Parameters:
+    -----------
+    screen: Surface of the window (surface)
+    text: Text to print (str)
+    pos: Top left position to print the text (list)
+    font: Font of the text to print (font)
+    color: Color of the text to print (list)
+    """
+
     textToPrint = [text.split(' ') for text in text.splitlines()]
     space = font.size(' ')[0]  # The width of a space.
     maxWidth = 300
@@ -260,6 +272,20 @@ def blitText(screen, text, pos, font, color):
 
 
 def game(screen, background, clock, font):
+    """
+    Function with the game loop.
+
+    Parameters:
+    -----------
+    screen: Surface of the window (surface)
+    background: Surface of the screen (surface)
+    clock: Object who track time (clock)
+    font: Font used to print text on surface (font)
+
+    Return:
+    -------
+    resulte: resulte of the game win or lost (str)
+    """
 
     # Setup GameData.
     invaderData = invader()
@@ -328,6 +354,9 @@ def game(screen, background, clock, font):
 
 
 def main():
+    """
+    Main function who manage everything.
+    """
 
     pg.init()
 
