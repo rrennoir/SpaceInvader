@@ -25,7 +25,7 @@ def invader():
     return invaderData
 
 
-def draw(screen, dataInvader, player, playerLaser, invaderLaser):
+def draw(screen, gameData):
     """
     Drawn object on the screen, like player, lasers and invaders.
 
@@ -34,7 +34,6 @@ def draw(screen, dataInvader, player, playerLaser, invaderLaser):
     screen: surface of the window (surface)
     dataInvader: coordinate of the invaders (list)
     player: information about the player (list)
-    playerLaser: coordinate of the lasers shoot by the player (list)
     invaderLaser: coordinate of the lasers shoot by the invaders (list)
     """
 
@@ -49,84 +48,85 @@ def draw(screen, dataInvader, player, playerLaser, invaderLaser):
     green = (0, 255, 0)
 
     # Draw invader.
-    for invaderPosition in dataInvader:
+    for invaderPosition in gameData["invaderData"]:
         invaderRect = pg.Rect(invaderPosition, sizeInvater)
         pg.draw.ellipse(screen, yellow, invaderRect)
 
     # Draw the player lasers.
-    for playerLaserPosition in playerLaser:
+    for playerLaserPosition in gameData["player"]["lasers"]:
         playerLaserRect = pg.Rect(playerLaserPosition, sizeLaser)
         pg.draw.rect(screen, blue, playerLaserRect)
         
     # Draw the invader lasers.
-    for invaderLaserPosition in invaderLaser:
+    for invaderLaserPosition in gameData["invaderLaserList"]:
         invaderLaserRect = pg.Rect(invaderLaserPosition, sizeLaser)
         pg.draw.rect(screen, green, invaderLaserRect)
 
     # Draw player
-    playerPosX = player["coordinate"][0]
-    playerPosY = player["coordinate"][1]
+    playerPosX = gameData["player"]["coordinate"][0]
+    playerPosY = gameData["player"]["coordinate"][1]
 
-    triangleCoordinate = ((playerPosX, playerPosY),
-                          (playerPosX + 10, playerPosY - 15), 
-                          (playerPosX + 20, playerPosY))
+    triangleCoordinate = (
+        (playerPosX, playerPosY),
+        (playerPosX + 10, playerPosY - 15), 
+        (playerPosX + 20, playerPosY))
 
     pg.draw.polygon(screen, red, triangleCoordinate)
 
 
-def updateInvader(invaderData, direction, laserList, invaderLaserList, player, gameTick):
+def updateInvader(gameData, direction, gameTick):
     """
     Update invaders, like position, laser position they have shootted and make them shoot randomly.
 
     Parameters:
     -----------
-    invaderData: coordinate of the invaders (list)
+    gameData: Data structure containing most of the information about the game. (dict)
     direction: Direction in witch way the invader array is going 1 or -1, if set -1 the direction will be reversed (int)
-    playerLaser: coordinate of the lasers shoot by the player (list)
-    invaderLaserList: coordinate of the lasers shoot by the invaders (list)
-    player: information about the player (dict)
     gameTick: Number of tick elapsed this second, 1 tick = 16ms, 60 tick = 1s (int)
 
     Return:
     -------
-    invaderData: Updated coordinate of the invaders (list)
+    gameData: Data structure containing most of the information about the game. (dict)
     direction: Direction in witch way the invader array is going 1 or -1, if set -1 the direction will be reversed (int)
-    laserList: Updated coordinate of the lasers shoot by the player (list)
-    invaderLaserList: Updated coordinate of the lasers shoot by the invaders (list)
-    player: Updated information about the player (dict)
     """
 
-    laserList, invaderData, invaderLaserList, player = laserHit(laserList, invaderData, invaderLaserList, player)
+    # Check if lasers hit something.
+    gameData = laserHit(gameData)
+
+    # Unpack varaible for easier reading.
+    invaderList = gameData["invaderData"]
+    invaderLaser = gameData["invaderLaserList"]
+    playerLaser = gameData["player"]["lasers"]
 
     # update invader position every second aka every 60 frames.
     if gameTick == 60:
         shiftDown = 0
-        directionNew = changeDirection(invaderData, direction)
+        directionNew = changeDirection(invaderList, direction)
 
-        # If direction change shift down
+        # If direction change, shift down
         if direction != directionNew:
             shiftDown = 10
         
         # Update invader position.
-        for invader in invaderData:
+        for invader in invaderList:
 
             invader[0] = invader[0] + (10 * directionNew)
             invader[1] = invader[1] + shiftDown
 
             # Shoot a laser randomly.
             if randint(0, 100) > 90:
-                invaderLaserList.append([invader[0], invader[1]])
+                invaderLaser.append([invader[0], invader[1]])
 
         direction = directionNew
     
     # Update laser position by 2 pixel every frame.
-    for i in range(len(laserList)):
-        laserList[i][1] -= 2
+    for laser in playerLaser:
+        laser[1] -= 2
 
-    for i in range(len(invaderLaserList)):
-        invaderLaserList[i][1] += 2
+    for invader_laser in invaderLaser:
+        invader_laser[1] += 2
 
-    return invaderData, direction, laserList, invaderLaserList, player
+    return gameData, direction
 
 
 def changeDirection(invaderData, direction):
@@ -156,75 +156,76 @@ def changeDirection(invaderData, direction):
     return direction          
 
 
-def laserHit(playerLaserList, invaderData, invaderLaserList, player):
+def laserHit(gameData):
     """
     Check if a laser hit a player or an invader, update the hitted target and delete the laser.
 
     Parameters:
     -----------
-    playerLaserList: coordinate of the lasers shoot by the player (list)
-    invaderData: coordinate of the invaders (list)
-    invaderLaserList: coordinate of the lasers shoot by the invaders (list)
-    player: information about the player (dict)
+    gameData: Data structure containing most of the information about the game. (dict)
 
     Return:
     -------
-    playerLaserList: Updated coordinate of the lasers shoot by the player (list)
-    invaderData: Updated coordinate of the invaders (list)
-    invaderLaserList: Updated coordinate of the lasers shoot by the invaders (list)
-    player: Updated information about the player (list)
+    gameData: Updated data structure containing most of the information about the game. (dict)
     """
 
+    player = gameData["player"]
+    playerLaser = player["lasers"]
+    playerPosX = player["coordinate"][0]
+    playerPosY = player["coordinate"][1]
+    invaderList = gameData["invaderData"]
+    invaderLaser = gameData["invaderLaserList"]
+
     # Lists empty get out of the function.
-    if playerLaserList == [] and invaderLaserList == []:
-        return playerLaserList, invaderData, invaderLaserList, player
+    if playerLaser == [] and invaderList == []:
+        return gameData
 
     # Init the function data. 
     playerLaserToDelete = []
     invaderLaserToDelete = []
     invaderToDelete = []
 
-    playerPosX = player["coordinate"][0]
-    playerPosY = player["coordinate"][1]
-
     # Find if a laser is in an invader hit box.
-    for laser in playerLaserList:
+    for player_laser in playerLaser:
 
-        laserPosX = laser[0]
-        laserPosY = laser[1]
+        laserPosX = player_laser[0]
+        laserPosY = player_laser[1]
 
-        for invader in invaderData:
+        for invader in invaderList:
             
             invaderPosX = invader[0]
             invaderPosY = invader[1]
 
             if (laserPosX >= invaderPosX and laserPosX <= invaderPosX + 15) and (laserPosY <= invaderPosY + 15 and laserPosY >= invaderPosY):
-                playerLaserToDelete.append(laser)
+
+                gameData["score"] += 10
+                playerLaserToDelete.append(player_laser)
                 invaderToDelete.append(invader)
 
     # Check if a invader lasers is in the player hit box.
-    for laser in invaderLaserList:
+    for invader_laser in invaderLaser:
         
-        laserPosX = laser[0]
-        laserPosY = laser[1]
+        laserPosX = invader_laser[0]
+        laserPosY = invader_laser[1]
 
         if (laserPosX >= playerPosX and laserPosX <= playerPosX + 20) and (laserPosY + 7 >= playerPosY and laserPosY + 7 <= playerPosY + 15):
-            invaderLaserToDelete.append(laser)
+
+            invaderLaserToDelete.append(invader_laser)
             player["life"] -= 1
             
     # Delete player laser who hit.
-    for laser in playerLaserToDelete:
-        playerLaserList.pop(playerLaserList.index(laser))
+    for playerLaserDeleted in playerLaserToDelete:
+        playerLaser.pop(playerLaser.index(playerLaserDeleted))
 
     # Delete invader laser who hit.
-    for laser in invaderLaserToDelete:
-        invaderLaserList.pop(invaderLaserList.index(laser))
+    for invaderLaserDeleted in invaderLaserToDelete:
+        invaderLaser.pop(invaderLaser.index(invaderLaserDeleted))
 
     # Delete invader destroyed.
-    for invader in invaderToDelete:
-        invaderData.pop(invaderData.index(invader))
+    for invaderDeleted in invaderToDelete:
+        invaderList.pop(invaderList.index(invaderDeleted))
 
-    return playerLaserList, invaderData, invaderLaserList, player
+    return gameData
 
 
 def checkEndGame(invaderData, player):
@@ -308,13 +309,15 @@ def game(screen, background, clock, font):
     """
 
     # Setup GameData.
-    invaderData = invader()
     direction = 1
     gameTick = 0 
-    # score = 0
-    player = {"life": 3, "coordinate": [150, 270]}
-    laserList = []
-    invaderLaserList = []
+
+    gameData = {
+        "player": {"life": 3, "coordinate": [150, 270], "lasers": []},
+        "invaderData":  invader(), 
+        "invaderLaserList": [], 
+        "score": 0}
+
     textColor = (255, 255, 255)
     
     runnning = True
@@ -331,42 +334,51 @@ def game(screen, background, clock, font):
             if event.type == pg.QUIT:
                 runnning = False
                 quit()
+        
+        # Unpack variable from gameData for easier reading.
+        playerPos = gameData["player"]["coordinate"]
+        playerLaser = gameData["player"]["lasers"]
+        playerLife = gameData["player"]["life"]
+        score = gameData["score"]
 
         # Check if LEFT or RIGHT arrow key is pressed and allow only 10 update per second.  
         keys = pg.key.get_pressed()
+
         if keys[pg.K_LEFT] and (gameTick % 6):
 
-            player["coordinate"][0] -= 2
-            if player["coordinate"][0] <= 0:
-                player["coordinate"][0] = 0
+            
+            playerPos[0] -= 2
+            if playerPos[0] <= 0:
+                playerPos[0] = 0
 
         if keys[pg.K_RIGHT] and (gameTick % 6):
 
-            player["coordinate"][0] += 2
-            if player["coordinate"][0] >= 280:
-                player["coordinate"][0] = 280
+            playerPos[0] += 2
+            if playerPos[0] >= 280:
+                playerPos[0] = 280
 
         # Check if SPACE is pressed and allow only 5 update per second (so 5 shoot/s).
         if keys[pg.K_SPACE] and (gameTick % 12 == 0):
-            laserList.append([player["coordinate"][0] + 10, player["coordinate"][1] - 15])
+            
+            playerLaser.append([playerPos[0] + 10, playerPos[1] - 15])
 
         # Game Update.
-        runnning = checkEndGame(invaderData, player)
-        invaderData , direction, laserList, invaderLaserList, player = updateInvader(invaderData, direction, laserList, invaderLaserList, player, gameTick)
+        runnning = checkEndGame(gameData["invaderData"], gameData["player"])
+        gameData, direction = updateInvader(gameData, direction, gameTick)
 
         # UI update.
-        uiText = "Life: {}    Score: 0".format(player["life"])
+        uiText = "Life: {}    Score: {}".format(playerLife, score)
         blitText(screen, uiText, (0, 0), font, textColor)
 
         # Game Drawn.
-        draw(screen, invaderData, player, laserList, invaderLaserList)
+        draw(screen, gameData)
 
         # Display update pygame.
         pg.display.update()
         screen.blit(background, (0, 0))
 
     # Check If game win or lost.
-    if invaderData == [] and player["life"] > 0:
+    if gameData["invaderData"] == [] and playerLife > 0:
         return "Game Win"
 
     else:
