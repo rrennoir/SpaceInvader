@@ -332,6 +332,33 @@ def blitText(screen, text, pos, font, color):
         y += wordHeight
 
 
+def pause(screen, background, font, fontColor):
+    """
+    Pause the game.
+
+    """
+    paused = True
+    screen.fill((0, 0, 0))
+    textPause = "Pause\n press SPACE to resume"
+
+    while paused:
+
+        keys = pg.key.get_pressed()
+        for event in pg.event.get():
+
+                if event.type == pg.QUIT:
+                    paused = False
+                    quit()
+
+        if keys[pg.K_SPACE]:
+            paused = False
+
+        blitText(screen, textPause, (65, 125), font, fontColor)
+        pg.display.update()
+        screen.blit(background, (0, 0))
+
+       
+
 def game(screen, background, clock, font):
     """
     Function with the game loop.
@@ -373,11 +400,16 @@ def game(screen, background, clock, font):
             gameTick = 0
         gameTick +=1
 
-        # Quit the game if the quit boutton is pressed
+        # Quit the game if the quit boutton is pressed.
+        keys = pg.key.get_pressed()
         for event in pg.event.get():
+
             if event.type == pg.QUIT:
                 runnning = False
                 quit()
+
+        if keys[pg.K_ESCAPE]:
+            pause(screen, background, font, textColor)
         
         # Unpack variable from gameData for easier reading.
         playerPos = gameData["player"]["coordinate"]
@@ -386,11 +418,8 @@ def game(screen, background, clock, font):
         score = gameData["score"]
 
         # Check if LEFT or RIGHT arrow key is pressed and allow only 10 update per second.  
-        keys = pg.key.get_pressed()
-
         if keys[pg.K_LEFT] and (gameTick % 6):
 
-            
             playerPos[0] -= 2
             if playerPos[0] <= 0:
                 playerPos[0] = 0
@@ -460,14 +489,16 @@ def main():
     input = True
     while input:
 
-        # Quit the game if the quit boutton is pressed
+        # Quit the game if the quit boutton is pressed or ESCAPE.
+        keys = pg.key.get_pressed()
+
         for event in pg.event.get():
-            if event.type == pg.QUIT:
+            
+            if keys[pg.K_ESCAPE] or (event.type == pg.QUIT):
                 input = False
                 quit()
         
         # Continue to play when SPACE is pressed.
-        keys = pg.key.get_pressed()
         if keys[pg.K_SPACE]:
             input = False
 
@@ -488,21 +519,23 @@ def main():
         input = True
         while input:
 
-            # Quit the game if the quit boutton is pressed
+            # Quit the game if the quit boutton is pressed or ESCAPE.
+            keys = pg.key.get_pressed()
+
             for event in pg.event.get():
-                if event.type == pg.QUIT:
+
+                if keys[pg.K_ESCAPE] or (event.type == pg.QUIT):
                     input = False
                     quit()
-            
-            # Continue to play when SPACE is pressed.
-            keys = pg.key.get_pressed()
-            if keys[pg.K_SPACE]:
-                input = False
 
             # Quit if ESCAPE is pressed.
             if keys[pg.K_ESCAPE]:
                 input = False
                 quit()
+
+            # Continue if SPACE is pressed.
+            if keys[pg.K_SPACE]:
+                input = False
 
 
 if __name__ == "__main__":
