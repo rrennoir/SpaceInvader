@@ -40,17 +40,12 @@ def draw(screen, gameData):
     # Sizes.
     sizeInvater = (15, 15)
     sizeLaser = (2, 7)
-    sizeDefence = (30, 20)
 
     # RGB colors.
     yellow = (255, 255, 0)
     red = (255, 0, 0)
     blue = (0, 0, 255)
     green = (0, 255, 0)
-    colorDefence = (
-        (50, 0, 50),
-        (100, 0, 100),
-        (150, 0, 150))
 
     # Draw invader.
     for invaderPosition in gameData["invaderData"]:
@@ -67,14 +62,7 @@ def draw(screen, gameData):
         invaderLaserRect = pg.Rect(invaderLaserPosition, sizeLaser)
         pg.draw.rect(screen, green, invaderLaserRect)
 
-    # Draw defences.
-    for defences in gameData["defence"]:
-
-        if defences["life"] > 0:
-            defencesRect = pg.Rect(defences["coordinate"], sizeDefence)
-            pg.draw.rect(screen, colorDefence[defences["life"] - 1], defencesRect)
-
-    # Draw player.
+    # Draw player
     playerPosX = gameData["player"]["coordinate"][0]
     playerPosY = gameData["player"]["coordinate"][1]
 
@@ -125,13 +113,9 @@ def updateInvader(gameData, direction, gameTick):
             invader[0] = invader[0] + (10 * directionNew)
             invader[1] = invader[1] + shiftDown
 
-            invaderPosX = invader[0]
-            playerPosX = gameData["player"]["coordinate"][0]
-
-            # if player is in the area of attack shoot a laser (20% chance).
-            if (invaderPosX - 50 < playerPosX) and (invaderPosX + 65 > playerPosX):
-                if randint(0, 100) > 80:
-                    invaderLaser.append([invader[0], invader[1]])
+            # Shoot a laser randomly.
+            if randint(0, 100) > 90:
+                invaderLaser.append([invader[0], invader[1]])
 
         direction = directionNew
     
@@ -207,16 +191,6 @@ def laserHit(gameData):
         laserPosX = player_laser[0]
         laserPosY = player_laser[1]
 
-        for defences in gameData["defence"]:
-
-            if defences["life"] > 0:
-                defencesPosX = defences["coordinate"][0]
-                defencesPosY = defences["coordinate"][1]
-
-                if (laserPosX >= defencesPosX and laserPosX <= defencesPosX + 30) and (laserPosY + 20 >= defencesPosY and laserPosY + 20 <= defencesPosY + 20):
-                    
-                    playerLaserToDelete.append(player_laser)
-
         for invader in invaderList:
             
             invaderPosX = invader[0]
@@ -228,30 +202,16 @@ def laserHit(gameData):
                 playerLaserToDelete.append(player_laser)
                 invaderToDelete.append(invader)
 
-    # Check if a invader lasers is in the player or defence hit box.
+    # Check if a invader lasers is in the player hit box.
     for invader_laser in invaderLaser:
         
         laserPosX = invader_laser[0]
         laserPosY = invader_laser[1]
 
-        # Defence.
-        for defences in gameData["defence"]:
-
-            if defences["life"] > 0:
-                defencesPosX = defences["coordinate"][0]
-                defencesPosY = defences["coordinate"][1]
-
-                if (laserPosX >= defencesPosX and laserPosX <= defencesPosX + 30) and (laserPosY + 20 >= defencesPosY and laserPosY + 20 <= defencesPosY + 20):
-                    
-                    invaderLaserToDelete.append(invader_laser)
-                    defences["life"] -= 1
-
-        # Player.
         if (laserPosX >= playerPosX and laserPosX <= playerPosX + 20) and (laserPosY + 7 >= playerPosY and laserPosY + 7 <= playerPosY + 15):
-            
+
             invaderLaserToDelete.append(invader_laser)
             player["life"] -= 1
-
             
     # Delete player laser who hit.
     for playerLaserDeleted in playerLaserToDelete:
@@ -332,33 +292,6 @@ def blitText(screen, text, pos, font, color):
         y += wordHeight
 
 
-def pause(screen, background, font, fontColor):
-    """
-    Pause the game.
-
-    """
-    paused = True
-    screen.fill((0, 0, 0))
-    textPause = "Pause\n press SPACE to resume"
-
-    while paused:
-
-        keys = pg.key.get_pressed()
-        for event in pg.event.get():
-
-                if event.type == pg.QUIT:
-                    paused = False
-                    quit()
-
-        if keys[pg.K_SPACE]:
-            paused = False
-
-        blitText(screen, textPause, (65, 125), font, fontColor)
-        pg.display.update()
-        screen.blit(background, (0, 0))
-
-       
-
 def game(screen, background, clock, font):
     """
     Function with the game loop.
@@ -382,11 +315,7 @@ def game(screen, background, clock, font):
     gameData = {
         "player": {"life": 3, "coordinate": [150, 270], "lasers": []},
         "invaderData":  invader(), 
-        "invaderLaserList": [],
-        "defence": [
-            {"coordinate": (60, 220), "life": 3},
-            {"coordinate": (135, 220), "life": 3},
-            {"coordinate": (210, 220), "life": 3}],
+        "invaderLaserList": [], 
         "score": 0}
 
     textColor = (255, 255, 255)
@@ -400,16 +329,11 @@ def game(screen, background, clock, font):
             gameTick = 0
         gameTick +=1
 
-        # Quit the game if the quit boutton is pressed.
-        keys = pg.key.get_pressed()
+        # Quit the game if the quit boutton is pressed
         for event in pg.event.get():
-
             if event.type == pg.QUIT:
                 runnning = False
                 quit()
-
-        if keys[pg.K_ESCAPE]:
-            pause(screen, background, font, textColor)
         
         # Unpack variable from gameData for easier reading.
         playerPos = gameData["player"]["coordinate"]
@@ -418,8 +342,11 @@ def game(screen, background, clock, font):
         score = gameData["score"]
 
         # Check if LEFT or RIGHT arrow key is pressed and allow only 10 update per second.  
+        keys = pg.key.get_pressed()
+
         if keys[pg.K_LEFT] and (gameTick % 6):
 
+            
             playerPos[0] -= 2
             if playerPos[0] <= 0:
                 playerPos[0] = 0
@@ -489,16 +416,14 @@ def main():
     input = True
     while input:
 
-        # Quit the game if the quit boutton is pressed or ESCAPE.
-        keys = pg.key.get_pressed()
-
+        # Quit the game if the quit boutton is pressed
         for event in pg.event.get():
-            
-            if keys[pg.K_ESCAPE] or (event.type == pg.QUIT):
+            if event.type == pg.QUIT:
                 input = False
                 quit()
         
         # Continue to play when SPACE is pressed.
+        keys = pg.key.get_pressed()
         if keys[pg.K_SPACE]:
             input = False
 
@@ -519,23 +444,21 @@ def main():
         input = True
         while input:
 
-            # Quit the game if the quit boutton is pressed or ESCAPE.
-            keys = pg.key.get_pressed()
-
+            # Quit the game if the quit boutton is pressed
             for event in pg.event.get():
-
-                if keys[pg.K_ESCAPE] or (event.type == pg.QUIT):
+                if event.type == pg.QUIT:
                     input = False
                     quit()
+            
+            # Continue to play when SPACE is pressed.
+            keys = pg.key.get_pressed()
+            if keys[pg.K_SPACE]:
+                input = False
 
             # Quit if ESCAPE is pressed.
             if keys[pg.K_ESCAPE]:
                 input = False
                 quit()
-
-            # Continue if SPACE is pressed.
-            if keys[pg.K_SPACE]:
-                input = False
 
 
 if __name__ == "__main__":
