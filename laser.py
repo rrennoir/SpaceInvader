@@ -30,19 +30,15 @@ def invader_laser_hit(player, invader_laser_list, defence_list):
                 defences_pos_x = defences["coordinate"][0]
                 defences_pos_y = defences["coordinate"][1]
 
-                if ((laser_pos_x >= defences_pos_x
-                     and laser_pos_x <= defences_pos_x + 30)
-                        and (laser_pos_y + 20 >= defences_pos_y
-                             and laser_pos_y + 20 <= defences_pos_y + 20)):
+                if ((defences_pos_x < laser_pos_x < defences_pos_x + 30)
+                        and (defences_pos_y < laser_pos_y < defences_pos_y + 20)):
 
                     invader_laser_to_delete.append(invader_laser)
                     defences["life"] -= 1
 
         # Player.
-        if ((laser_pos_x >= player_pos_x
-             and laser_pos_x <= player_pos_x + 20)
-                and (laser_pos_y + 7 >= player_pos_y
-                     and laser_pos_y + 7 <= player_pos_y + 15)):
+        if ((player_pos_x < laser_pos_x + 7 < player_pos_x + 20)
+                and (player_pos_y < laser_pos_y + 7 < player_pos_y + 15)):
 
             invader_laser_to_delete.append(invader_laser)
             player["life"] -= 1
@@ -84,10 +80,8 @@ def player_laser_hit(player_laser_list, invader_list, defence_list, score):
                 defences_pos_x = defences["coordinate"][0]
                 defences_pos_y = defences["coordinate"][1]
 
-                if ((laser_pos_x >= defences_pos_x
-                     and laser_pos_x <= defences_pos_x + 30)
-                        and (laser_pos_y + 20 >= defences_pos_y
-                             and laser_pos_y + 20 <= defences_pos_y + 20)):
+                if ((defences_pos_x < laser_pos_x < defences_pos_x + 30)
+                        and (defences_pos_y < laser_pos_y < defences_pos_y + 20)):
 
                     player_laser_to_delete.append(player_laser)
 
@@ -96,10 +90,8 @@ def player_laser_hit(player_laser_list, invader_list, defence_list, score):
             invader_pos_x = _invader[0]
             invader_pos_y = _invader[1]
 
-            if ((laser_pos_x >= invader_pos_x
-                 and laser_pos_x <= invader_pos_x + 15)
-                    and (laser_pos_y <= invader_pos_y + 15
-                         and laser_pos_y >= invader_pos_y)):
+            if ((invader_pos_x < laser_pos_x < invader_pos_x + 15)
+                    and (invader_pos_y < laser_pos_y < invader_pos_y + 15)):
 
                 score += 10
                 player_laser_to_delete.append(player_laser)
@@ -129,7 +121,7 @@ def laser_hit(game_data):
     game_data: Updated data structure containing most of the information about the game. (dict)
     """
     player_laser_list = game_data["player"]["lasers"]
-    invader_list = game_data["invader"]["lasers"]
+    invader_list = game_data["invader"]["coordinate"]
 
     # Lists empty get out of the function.
     if player_laser_list == [] and invader_list == []:
