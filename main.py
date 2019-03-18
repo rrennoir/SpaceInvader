@@ -1,31 +1,35 @@
-import pygame as pg
-import pygame.freetype
+"""
+Little Space Invader game just for fun ;)
+"""
 from random import randint
+import pygame as pg
+from pygame import surface
 
 
 def invader():
     """
-    Setup all invader position into a list of coordinate.
+    Setup all _invader position into a list of coordinate.
 
     Return:
     -------
-    invaderData: list of coordinate (list)
+    invader_data: list of coordinate (list)
     """
 
     # Create invader data structur.
-    invaderData = []
+    invader_data = []
     for j in range(3):
-        for invader in range(10):
+        for invader_pos in range(10):
 
-            # offset the X axis by 25 pixel to center the invader platoon and offset the Y axis by 50 pixel to let place for the UI on the top.
-            invaderPosition = [(invader * 25) + 25, j * 25 + 50] 
+            # offset the X axis by 25 pixel to center the invader platoon
+            # and offset the Y axis by 50 pixel to let place for the UI on the top.
+            invader_position = [(invader_pos * 25) + 25, j * 25 + 50]
 
-            invaderData.append(invaderPosition)
+            invader_data.append(invader_position)
 
-    return invaderData
+    return invader_data
 
 
-def draw(screen, gameData):
+def draw(screen, game_data):
     """
     Drawn object on the screen, like player, lasers and invaders.
 
@@ -34,207 +38,257 @@ def draw(screen, gameData):
     screen: surface of the window (surface)
     dataInvader: coordinate of the invaders (list)
     player: information about the player (list)
-    invaderLaser: coordinate of the lasers shoot by the invaders (list)
+    invader_laser: coordinate of the lasers shoot by the invaders (list)
     """
-
-    # Sizes.
-    sizeInvater = (15, 15)
-    sizeLaser = (2, 7)
 
     # RGB colors.
     yellow = (255, 255, 0)
     red = (255, 0, 0)
     blue = (0, 0, 255)
     green = (0, 255, 0)
+    color_defence = (
+        (50, 0, 50),
+        (100, 0, 100),
+        (150, 0, 150))
 
-    # Draw invader.
-    for invaderPosition in gameData["invaderData"]:
-        invaderRect = pg.Rect(invaderPosition, sizeInvater)
-        pg.draw.ellipse(screen, yellow, invaderRect)
+    # Draw _invader.
+    for invader_position in game_data["invader_data"]:
+        invader_rect = pg.Rect(invader_position, (15, 15))
+        pg.draw.ellipse(screen, yellow, invader_rect)
 
     # Draw the player lasers.
-    for playerLaserPosition in gameData["player"]["lasers"]:
-        playerLaserRect = pg.Rect(playerLaserPosition, sizeLaser)
-        pg.draw.rect(screen, blue, playerLaserRect)
-        
-    # Draw the invader lasers.
-    for invaderLaserPosition in gameData["invaderLaserList"]:
-        invaderLaserRect = pg.Rect(invaderLaserPosition, sizeLaser)
-        pg.draw.rect(screen, green, invaderLaserRect)
+    for player_laser_position in game_data["player"]["lasers"]:
+        player_laser_rect = pg.Rect(player_laser_position, (2, 7))
+        pg.draw.rect(screen, blue, player_laser_rect)
 
-    # Draw player
-    playerPosX = gameData["player"]["coordinate"][0]
-    playerPosY = gameData["player"]["coordinate"][1]
+    # Draw the _invader lasers.
+    for invader_laser_position in game_data["invaderLaserList"]:
+        invader_laser_rect = pg.Rect(invader_laser_position, (2, 7))
+        pg.draw.rect(screen, green, invader_laser_rect)
 
-    triangleCoordinate = (
-        (playerPosX, playerPosY),
-        (playerPosX + 10, playerPosY - 15), 
-        (playerPosX + 20, playerPosY))
+    # Draw defences.
+    for defences in game_data["defence"]:
 
-    pg.draw.polygon(screen, red, triangleCoordinate)
+        if defences["life"] > 0:
+            defences_rect = pg.Rect(defences["coordinate"], (30, 20))
+            pg.draw.rect(screen, color_defence[defences["life"] - 1], defences_rect)
+
+    # Draw player.
+    player_pos_x = game_data["player"]["coordinate"][0]
+    player_pos_y = game_data["player"]["coordinate"][1]
+
+    triangle_coordinate = (
+        (player_pos_x, player_pos_y),
+        (player_pos_x + 10, player_pos_y - 15),
+        (player_pos_x + 20, player_pos_y))
+
+    pg.draw.polygon(screen, red, triangle_coordinate)
 
 
-def updateInvader(gameData, direction, gameTick):
+def update_invader(game_data, direction, game_tick):
     """
     Update invaders, like position, laser position they have shootted and make them shoot randomly.
 
     Parameters:
     -----------
-    gameData: Data structure containing most of the information about the game. (dict)
-    direction: Direction in witch way the invader array is going 1 or -1, if set -1 the direction will be reversed (int)
-    gameTick: Number of tick elapsed this second, 1 tick = 16ms, 60 tick = 1s (int)
+    game_data: Data structure containing most of the information about the game. (dict)
+    direction: Direction in witch way the _invader array is going 1 or -1,
+                if set -1 the direction will be reversed (int)
+    game_tick: Number of tick elapsed this second, 1 tick = 16ms, 60 tick = 1s (int)
 
     Return:
     -------
-    gameData: Data structure containing most of the information about the game. (dict)
-    direction: Direction in witch way the invader array is going 1 or -1, if set -1 the direction will be reversed (int)
+    game_data: Data structure containing most of the information about the game. (dict)
+    direction: Direction in witch way the _invader array is going 1 or -1,
+                 if set -1 the direction will be reversed (int)
     """
 
     # Check if lasers hit something.
-    gameData = laserHit(gameData)
+    game_data = laser_hit(game_data)
 
     # Unpack varaible for easier reading.
-    invaderList = gameData["invaderData"]
-    invaderLaser = gameData["invaderLaserList"]
-    playerLaser = gameData["player"]["lasers"]
+    invader_list = game_data["invader_data"]
+    invader_laser = game_data["invaderLaserList"]
+    player_laser = game_data["player"]["lasers"]
 
-    # update invader position every second aka every 60 frames.
-    if gameTick == 60:
-        shiftDown = 0
-        directionNew = changeDirection(invaderList, direction)
+    # update _invader position every second aka every 60 frames.
+    if game_tick == 60:
+        shift_down = 0
+        direction_new = change_direction(invader_list, direction)
 
         # If direction change, shift down
-        if direction != directionNew:
-            shiftDown = 10
-        
-        # Update invader position.
-        for invader in invaderList:
+        if direction != direction_new:
+            shift_down = 10
 
-            invader[0] = invader[0] + (10 * directionNew)
-            invader[1] = invader[1] + shiftDown
+        # Update _invader position.
+        for _invader in invader_list:
 
-            # Shoot a laser randomly.
-            if randint(0, 100) > 90:
-                invaderLaser.append([invader[0], invader[1]])
+            _invader[0] = _invader[0] + (10 * direction_new)
+            _invader[1] = _invader[1] + shift_down
 
-        direction = directionNew
-    
+            invader_pos_x = _invader[0]
+            player_pos_x = game_data["player"]["coordinate"][0]
+
+            # if player is in the area of attack shoot a laser (20% chance).
+            if (invader_pos_x - 50 < player_pos_x) and (invader_pos_x + 65 > player_pos_x):
+                if randint(0, 100) > 80:
+                    invader_laser.append([_invader[0], _invader[1]])
+
+        direction = direction_new
+
     # Update laser position by 2 pixel every frame.
-    for laser in playerLaser:
+    for laser in player_laser:
         laser[1] -= 2
 
-    for invader_laser in invaderLaser:
+    for invader_laser in invader_laser:
         invader_laser[1] += 2
 
-    return gameData, direction
+    return game_data, direction
 
 
-def changeDirection(invaderData, direction):
+def change_direction(invader_data, direction):
     """
-    Change the direction of all invader alive every time an invader hit the screen border
+    Change the direction of all _invader alive every time an _invader hit the screen border
 
     Parameters:
     -----------
-    invaderData: coordinate of the invaders (list)
-    direction: Direction in witch way the invader array is going 1 or -1, if set -1 the direction will be reversed (int)
+    invader_data: coordinate of the invaders (list)
+    direction: Direction in witch way the _invader array is going 1 or -1,
+                if set -1 the direction will be reversed (int)
 
     Return:
     -------
-    direction: Updated Direction in witch way the invader array is going 1 or -1 (int)
+    direction: Updated Direction in witch way the _invader array is going 1 or -1 (int)
     """
 
     change = False
-    for invader in invaderData:
+    for _invader in invader_data:
 
-        invaderPosX = invader[0]
-        if (invaderPosX >= 280 and direction == 1) or (invaderPosX <= 10 and direction == -1):
+        invader_pos_x = _invader[0]
+        if (invader_pos_x >= 280 and direction == 1) or (invader_pos_x <= 10 and direction == -1):
             change = True
-            
-    if change == True:
+
+    if change:
         direction *= -1
 
-    return direction          
+    return direction
 
 
-def laserHit(gameData):
+def laser_hit(game_data):
     """
-    Check if a laser hit a player or an invader, update the hitted target and delete the laser.
+    Check if a laser hit a player or an _invader, update the hitted target and delete the laser.
 
     Parameters:
     -----------
-    gameData: Data structure containing most of the information about the game. (dict)
+    game_data: Data structure containing most of the information about the game. (dict)
 
     Return:
     -------
-    gameData: Updated data structure containing most of the information about the game. (dict)
+    game_data: Updated data structure containing most of the information about the game. (dict)
     """
 
-    player = gameData["player"]
-    playerLaser = player["lasers"]
-    playerPosX = player["coordinate"][0]
-    playerPosY = player["coordinate"][1]
-    invaderList = gameData["invaderData"]
-    invaderLaser = gameData["invaderLaserList"]
+    player = game_data["player"]
+    player_laser = player["lasers"]
+    player_pos_x = player["coordinate"][0]
+    player_pos_y = player["coordinate"][1]
+    invader_list = game_data["invader_data"]
+    invader_laser = game_data["invaderLaserList"]
 
     # Lists empty get out of the function.
-    if playerLaser == [] and invaderList == []:
-        return gameData
+    if player_laser == [] and invader_list == []:
+        return game_data
 
-    # Init the function data. 
-    playerLaserToDelete = []
-    invaderLaserToDelete = []
-    invaderToDelete = []
+    # Init the function data.
+    player_laser_to_delete = []
+    invader_laser_to_delete = []
+    invader_to_delete = []
 
-    # Find if a laser is in an invader hit box.
-    for player_laser in playerLaser:
+    # Find if a laser is in an _invader hit box.
+    for player_laser in player_laser:
 
-        laserPosX = player_laser[0]
-        laserPosY = player_laser[1]
+        laser_pos_x = player_laser[0]
+        laser_pos_y = player_laser[1]
 
-        for invader in invaderList:
-            
-            invaderPosX = invader[0]
-            invaderPosY = invader[1]
+        for defences in game_data["defence"]:
 
-            if (laserPosX >= invaderPosX and laserPosX <= invaderPosX + 15) and (laserPosY <= invaderPosY + 15 and laserPosY >= invaderPosY):
+            if defences["life"] > 0:
+                defences_pos_x = defences["coordinate"][0]
+                defences_pos_y = defences["coordinate"][1]
 
-                gameData["score"] += 10
-                playerLaserToDelete.append(player_laser)
-                invaderToDelete.append(invader)
+                if ((laser_pos_x >= defences_pos_x
+                     and laser_pos_x <= defences_pos_x + 30)
+                        and (laser_pos_y + 20 >= defences_pos_y
+                             and laser_pos_y + 20 <= defences_pos_y + 20)):
 
-    # Check if a invader lasers is in the player hit box.
-    for invader_laser in invaderLaser:
-        
-        laserPosX = invader_laser[0]
-        laserPosY = invader_laser[1]
+                    player_laser_to_delete.append(player_laser)
 
-        if (laserPosX >= playerPosX and laserPosX <= playerPosX + 20) and (laserPosY + 7 >= playerPosY and laserPosY + 7 <= playerPosY + 15):
+        for _invader in invader_list:
 
-            invaderLaserToDelete.append(invader_laser)
+            invader_pos_x = _invader[0]
+            invader_pos_y = _invader[1]
+
+            if ((laser_pos_x >= invader_pos_x
+                 and laser_pos_x <= invader_pos_x + 15)
+                    and (laser_pos_y <= invader_pos_y + 15
+                         and laser_pos_y >= invader_pos_y)):
+
+                game_data["score"] += 10
+                player_laser_to_delete.append(player_laser)
+                invader_to_delete.append(_invader)
+
+    # Check if a _invader lasers is in the player or defence hit box.
+    for invader_laser in invader_laser:
+
+        laser_pos_x = invader_laser[0]
+        laser_pos_y = invader_laser[1]
+
+        # Defence.
+        for defences in game_data["defence"]:
+
+            if defences["life"] > 0:
+                defences_pos_x = defences["coordinate"][0]
+                defences_pos_y = defences["coordinate"][1]
+
+                if ((laser_pos_x >= defences_pos_x
+                     and laser_pos_x <= defences_pos_x + 30)
+                        and (laser_pos_y + 20 >= defences_pos_y
+                             and laser_pos_y + 20 <= defences_pos_y + 20)):
+
+                    invader_laser_to_delete.append(invader_laser)
+                    defences["life"] -= 1
+
+        # Player.
+        if ((laser_pos_x >= player_pos_x
+             and laser_pos_x <= player_pos_x + 20)
+                and (laser_pos_y + 7 >= player_pos_y
+                     and laser_pos_y + 7 <= player_pos_y + 15)):
+
+            invader_laser_to_delete.append(invader_laser)
             player["life"] -= 1
-            
+
+
     # Delete player laser who hit.
-    for playerLaserDeleted in playerLaserToDelete:
-        playerLaser.pop(playerLaser.index(playerLaserDeleted))
+    for player_laser_deleted in player_laser_to_delete:
+        player_laser.pop(player_laser.index(player_laser_deleted))
 
-    # Delete invader laser who hit.
-    for invaderLaserDeleted in invaderLaserToDelete:
-        invaderLaser.pop(invaderLaser.index(invaderLaserDeleted))
+    # Delete _invader laser who hit.
+    for invader_laser_deleted in invader_laser_to_delete:
+        invader_laser.pop(invader_laser.index(invader_laser_deleted))
 
-    # Delete invader destroyed.
-    for invaderDeleted in invaderToDelete:
-        invaderList.pop(invaderList.index(invaderDeleted))
+    # Delete _invader destroyed.
+    for invader_deleted in invader_to_delete:
+        invader_list.pop(invader_list.index(invader_deleted))
 
-    return gameData
+    return game_data
 
 
-def checkEndGame(invaderData, player):
+def check_end_game(invader_data, player):
     """
     Check if the game is finished.
 
     Parameters:
     -----------
-    invaderData: coordinate of the invaders (list)
+    invader_data: coordinate of the invaders (list)
     player: Information about the player (dict)
 
     return:
@@ -242,54 +296,79 @@ def checkEndGame(invaderData, player):
     Result: if the game is finished retrun false, true otherwise.
     """
 
-    if invaderData == [] or player["life"] <= 0:
+    if invader_data == [] or player["life"] <= 0:
         return False
 
-    for invader in invaderData:
-        if invader[1] + 15 >= 300:
+    for invader_pos in invader_data:
+        if invader_pos[1] + 15 >= 300:
             return False
 
     return True
 
 
-def blitText(screen, text, pos, font, color):
+def blittext_to_print(screen, text_to_print, pos, font, color):
     """
-    Print text on a surface.
+    Print text_to_print on a surface.
 
     Parameters:
     -----------
     screen: Surface of the window (surface)
-    text: Text to print (str)
-    pos: Top left position to print the text (list)
-    font: Font of the text to print (font)
+    text_to_print: text_to_print to print (str)
+    pos: Top left position to print the text_to_print (list)
+    font: Font of the text_to_print to print (font)
     color: Color of the text to print (list)
     """
 
-    textToPrint = [text.split(' ') for text in text.splitlines()]
+    text_to_print = [text_to_print.split(' ') for text_to_print in text_to_print.splitlines()]
     space = font.size(' ')[0]  # The width of a space.
-    maxWidth = 300
-    maxHeight = 300
-    x = pos[0]
-    y = pos[1]
+    max_width = 300
+    x_pos = pos[0]
+    y_pos = pos[1]
 
-    for line in textToPrint:
+    for line in text_to_print:
 
         for word in line:
             word_surface = font.render(word, 0, color)
-            wordWidth, wordHeight = word_surface.get_size()
+            word_width, word_height = word_surface.get_size()
 
             # If the word go further
-            if x + wordWidth >= maxWidth:
-                x = pos[0]  # Reset the x.
-                y += wordHeight  # Start on new row.
+            if x_pos + word_width >= max_width:
+                x_pos = pos[0]  # Reset the x_pos.
+                y_pos += word_height  # Start on new row.
 
-            # Draw to the screen and pass to the nex x value.
-            screen.blit(word_surface, (x, y))
-            x += wordWidth + space
+            # Draw to the screen and pass to the nex x_pos value.
+            screen.blit(word_surface, (x_pos, y_pos))
+            x_pos += word_width + space
 
-        # Reset x axis and start a new row. 
-        x = pos[0]
-        y += wordHeight
+        # Reset x_pos axis and start a new row.
+        x_pos = pos[0]
+        y_pos += word_height
+
+
+def pause(screen, background, font, font_color):
+    """
+    Pause the game.
+
+    """
+    paused = True
+    screen.fill((0, 0, 0))
+    text_to_print_pause = "Pause\n press SPACE to resume"
+
+    while paused:
+
+        keys = pg.key.get_pressed()
+        for event in pg.event.get():
+
+            if event.type == pg.QUIT:
+                paused = False
+                quit()
+
+        if keys[pg.K_SPACE]:
+            paused = False
+
+        blittext_to_print(screen, text_to_print_pause, (65, 125), font, font_color)
+        pg.display.update()
+        screen.blit(background, (0, 0))
 
 
 def game(screen, background, clock, font):
@@ -301,88 +380,93 @@ def game(screen, background, clock, font):
     screen: Surface of the window (surface)
     background: Surface of the screen (surface)
     clock: Object who track time (clock)
-    font: Font used to print text on surface (font)
+    font: Font used to print text_to_print on surface (font)
 
     Return:
     -------
     resulte: resulte of the game win or lost (str)
     """
 
-    # Setup GameData.
+    # Setup game_data.
     direction = 1
-    gameTick = 0 
+    game_tick = 0
 
-    gameData = {
+    game_data = {
         "player": {"life": 3, "coordinate": [150, 270], "lasers": []},
-        "invaderData":  invader(), 
-        "invaderLaserList": [], 
+        "invader_data":  invader(),
+        "invaderLaserList": [],
+        "defence": [
+            {"coordinate": (60, 220), "life": 3},
+            {"coordinate": (135, 220), "life": 3},
+            {"coordinate": (210, 220), "life": 3}],
         "score": 0}
 
-    textColor = (255, 255, 255)
-    
+    text_to_print_color = (255, 255, 255)
+
     runnning = True
     while runnning:
-        
-        # Set the game to 60 update per second and count gameTick
-        clock.tick(60)
-        if gameTick == 60:
-            gameTick = 0
-        gameTick +=1
 
-        # Quit the game if the quit boutton is pressed
+        # Set the game to 60 update per second and count game_tick
+        clock.tick(60)
+        if game_tick == 60:
+            game_tick = 0
+        game_tick += 1
+
+        # Quit the game if the quit boutton is pressed.
+        keys = pg.key.get_pressed()
         for event in pg.event.get():
+
             if event.type == pg.QUIT:
                 runnning = False
                 quit()
-        
-        # Unpack variable from gameData for easier reading.
-        playerPos = gameData["player"]["coordinate"]
-        playerLaser = gameData["player"]["lasers"]
-        playerLife = gameData["player"]["life"]
-        score = gameData["score"]
 
-        # Check if LEFT or RIGHT arrow key is pressed and allow only 10 update per second.  
-        keys = pg.key.get_pressed()
+        if keys[pg.K_ESCAPE]:
+            pause(screen, background, font, text_to_print_color)
 
-        if keys[pg.K_LEFT] and (gameTick % 6):
+        # Unpack variable from game_data for easier reading.
+        player_pos = game_data["player"]["coordinate"]
+        player_laser = game_data["player"]["lasers"]
+        player_life = game_data["player"]["life"]
+        score = game_data["score"]
 
-            
-            playerPos[0] -= 2
-            if playerPos[0] <= 0:
-                playerPos[0] = 0
+        # Check if LEFT or RIGHT arrow key is pressed and allow only 10 update per second.
+        if keys[pg.K_LEFT] and (game_tick % 6):
 
-        if keys[pg.K_RIGHT] and (gameTick % 6):
+            player_pos[0] -= 2
+            if player_pos[0] <= 0:
+                player_pos[0] = 0
 
-            playerPos[0] += 2
-            if playerPos[0] >= 280:
-                playerPos[0] = 280
+        if keys[pg.K_RIGHT] and (game_tick % 6):
+
+            player_pos[0] += 2
+            if player_pos[0] >= 280:
+                player_pos[0] = 280
 
         # Check if SPACE is pressed and allow only 5 update per second (so 5 shoot/s).
-        if keys[pg.K_SPACE] and (gameTick % 12 == 0):
-            
-            playerLaser.append([playerPos[0] + 10, playerPos[1] - 15])
+        if keys[pg.K_SPACE] and (game_tick % 12 == 0):
+
+            player_laser.append([player_pos[0] + 10, player_pos[1] - 15])
 
         # Game Update.
-        runnning = checkEndGame(gameData["invaderData"], gameData["player"])
-        gameData, direction = updateInvader(gameData, direction, gameTick)
+        runnning = check_end_game(game_data["invader_data"], game_data["player"])
+        game_data, direction = update_invader(game_data, direction, game_tick)
 
         # UI update.
-        uiText = "Life: {}    Score: {}".format(playerLife, score)
-        blitText(screen, uiText, (0, 0), font, textColor)
+        ui_text_to_print = "Life: {}    Score: {}".format(player_life, score)
+        blittext_to_print(screen, ui_text_to_print, (0, 0), font, text_to_print_color)
 
         # Game Drawn.
-        draw(screen, gameData)
+        draw(screen, game_data)
 
         # Display update pygame.
         pg.display.update()
         screen.blit(background, (0, 0))
 
     # Check If game win or lost.
-    if gameData["invaderData"] == [] and playerLife > 0:
+    if game_data["invader_data"] == [] and player_life > 0:
         return "Game Win"
 
-    else:
-        return "Game Lost"
+    return "Game Lost"
 
 
 def main():
@@ -394,38 +478,40 @@ def main():
 
     # Setup the font.
     font = pg.font.SysFont("Comic Sans MS", 15)
-    fontIntro = pg.font.SysFont("Comic Sans MS", 30)
-    textColor = (255, 255, 255)
+    font_intro = pg.font.SysFont("Comic Sans MS", 30)
+    text_to_print_color = (255, 255, 255)
 
     # Setup window and game clock.
-    displaySize = [300, 300]
-    screen = pg.display.set_mode(displaySize)
-    background = pg.Surface(screen.get_size())
+    display_size = [300, 300]
+    screen = pg.display.set_mode(display_size)
+    # import surface separetly to remove "too many positional arguments for lambda call" bug.
+    background = surface.Surface(screen.get_size())
     clock = pg.time.Clock()
 
     # Intro
-    textIntro = "SPACE INVADER"
-    textIntroInput = "Press SPACE to play or\n press ESCAPE to exit."
-    textIntroSurface = fontIntro.render(textIntro, 0, textColor)
-    blitText(screen, textIntroInput, (65, 125), font, textColor)
-    screen.blit(textIntroSurface, (25, 45))
+    text_to_print_intro = "SPACE INVADER"
+    text_to_print_intro_2 = "Press SPACE to play or\n press ESCAPE to exit."
+    text_to_print_into_surface = font_intro.render(text_to_print_intro, 0, text_to_print_color)
+    blittext_to_print(screen, text_to_print_intro_2, (65, 125), font, text_to_print_color)
+    screen.blit(text_to_print_into_surface, (25, 45))
 
-    # blitText(screen, textIntro, (0,0), fontIntro, textColor)
+    # blittext_to_print(screen, text_to_print_intro, (0,0), font_intro, text_to_print_color)
     pg.display.update()
 
-    input = True
-    while input:
+    wait_input = True
+    while wait_input:
 
-        # Quit the game if the quit boutton is pressed
-        for event in pg.event.get():
-            if event.type == pg.QUIT:
-                input = False
-                quit()
-        
-        # Continue to play when SPACE is pressed.
+        # Quit the game if the quit boutton is pressed or ESCAPE.
         keys = pg.key.get_pressed()
+        for event in pg.event.get():
+
+            if keys[pg.K_ESCAPE] or (event.type == pg.QUIT):
+                wait_input = False
+                quit()
+
+        # Continue to play when SPACE is pressed.
         if keys[pg.K_SPACE]:
-            input = False
+            wait_input = False
 
     play = True
     while play:
@@ -434,31 +520,33 @@ def main():
 
         screen.fill((0, 0, 0))
 
-        textEndGame = "Press SPACE to try again \nor press ESCAPE to exit."
-        wordSurface = font.render(result, 0, textColor)
-        screen.blit(wordSurface, (115, 80))
-        blitText(screen, textEndGame, (65, 125), font, textColor)
+        text_to_print_end_game = "Press SPACE to try again \nor press ESCAPE to exit."
+        word_surface = font.render(result, 0, text_to_print_color)
+        screen.blit(word_surface, (115, 80))
+        blittext_to_print(screen, text_to_print_end_game, (65, 125), font, text_to_print_color)
 
         pg.display.update()
 
-        input = True
-        while input:
+        wait_input = True
+        while wait_input:
 
-            # Quit the game if the quit boutton is pressed
-            for event in pg.event.get():
-                if event.type == pg.QUIT:
-                    input = False
-                    quit()
-            
-            # Continue to play when SPACE is pressed.
+            # Quit the game if the quit boutton is pressed or ESCAPE.
             keys = pg.key.get_pressed()
-            if keys[pg.K_SPACE]:
-                input = False
+
+            for event in pg.event.get():
+
+                if keys[pg.K_ESCAPE] or (event.type == pg.QUIT):
+                    wait_input = False
+                    quit()
 
             # Quit if ESCAPE is pressed.
             if keys[pg.K_ESCAPE]:
-                input = False
+                wait_input = False
                 quit()
+
+            # Continue if SPACE is pressed.
+            if keys[pg.K_SPACE]:
+                wait_input = False
 
 
 if __name__ == "__main__":
