@@ -88,7 +88,7 @@ def draw(screen, game_data):
     pg.draw.polygon(screen, red, triangle_coordinate)
 
 
-def game(screen, background, clock, font):
+def game(screen, background, clock, font_title, font):
     """
     Function with the game loop.
 
@@ -97,6 +97,7 @@ def game(screen, background, clock, font):
     screen: Surface of the window (surface)
     background: Surface of the screen (surface)
     clock: Object who track time (clock)
+    font_title: Font used to print text title on surface (font)
     font: Font used to print text on surface (font)
 
     Return:
@@ -134,7 +135,7 @@ def game(screen, background, clock, font):
                 quit()
 
         if keys[pg.K_ESCAPE]:
-            pause(screen, background, font, font_color)
+            pause(screen, background, font_title, font, font_color)
 
         # Unpack variable from game_data for easier reading.
         player_life = game_data["player"]["life"]
@@ -190,7 +191,7 @@ def main():
     while play:
 
         # Game logic
-        result = game(screen, background, clock, font_basic)
+        result = game(screen, background, clock, font_title, font_basic)
 
         # Game terminated draw outro screen
         # and wait for player input to continue or stop.
