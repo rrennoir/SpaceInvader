@@ -129,14 +129,15 @@ def laser_hit(game_data):
     game_data: Updated data structure containing most of the information about the game. (dict)
     """
     player_laser_list = game_data["player"]["lasers"]
-    invader_list = game_data["invader_data"]
+    invader_list = game_data["invader"]["lasers"]
 
     # Lists empty get out of the function.
     if player_laser_list == [] and invader_list == []:
         return game_data
 
+    # Unpack data structure.
     player = game_data["player"]
-    invader_laser_list = game_data["invaderLaserList"]
+    invader_laser_list = game_data["invader"]["lasers"]
     defence_list = game_data["defence"]
     score = game_data["score"]
 

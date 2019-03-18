@@ -57,7 +57,7 @@ def draw(screen, game_data):
         (150, 0, 150))
 
     # Draw _invader.
-    for invader_position in game_data["invader_data"]:
+    for invader_position in game_data["invader"]["coordinate"]:
         invader_rect = pg.Rect(invader_position, (15, 15))
         pg.draw.ellipse(screen, yellow, invader_rect)
 
@@ -67,7 +67,7 @@ def draw(screen, game_data):
         pg.draw.rect(screen, blue, player_laser_rect)
 
     # Draw the _invader lasers.
-    for invader_laser_position in game_data["invaderLaserList"]:
+    for invader_laser_position in game_data["invader"]["lasers"]:
         invader_laser_rect = pg.Rect(invader_laser_position, (2, 7))
         pg.draw.rect(screen, green, invader_laser_rect)
 
@@ -97,14 +97,14 @@ def update_invader(game_data, direction, game_tick):
     Parameters:
     -----------
     game_data: Data structure containing most of the information about the game. (dict)
-    direction: Direction in witch way the _invader array is going 1 or -1,
+    direction: Direction in witch way the invader array is going 1 or -1,
                 if set -1 the direction will be reversed (int)
     game_tick: Number of tick elapsed this second, 1 tick = 16ms, 60 tick = 1s (int)
 
     Return:
     -------
     game_data: Data structure containing most of the information about the game. (dict)
-    direction: Direction in witch way the _invader array is going 1 or -1,
+    direction: Direction in witch way the invader array is going 1 or -1,
                  if set -1 the direction will be reversed (int)
     """
 
@@ -112,8 +112,8 @@ def update_invader(game_data, direction, game_tick):
     game_data = laser_hit(game_data)
 
     # Unpack varaible for easier reading.
-    invader_list = game_data["invader_data"]
-    invader_laser = game_data["invaderLaserList"]
+    invader_list = game_data["invader"]["coordinate"]
+    invader_laser = game_data["invader"]["lasers"]
     player_laser = game_data["player"]["lasers"]
 
     # update _invader position every second aka every 60 frames.
@@ -153,17 +153,17 @@ def update_invader(game_data, direction, game_tick):
 
 def change_direction(invader_data, direction):
     """
-    Change the direction of all _invader alive every time an _invader hit the screen border
+    Change the direction of all invader alive every time an invader hit the screen border
 
     Parameters:
     -----------
     invader_data: coordinate of the invaders (list)
-    direction: Direction in witch way the _invader array is going 1 or -1,
+    direction: Direction in witch way the invader array is going 1 or -1,
                 if set -1 the direction will be reversed (int)
 
     Return:
     -------
-    direction: Updated Direction in witch way the _invader array is going 1 or -1 (int)
+    direction: Updated Direction in witch way the invader array is going 1 or -1 (int)
     """
 
     change = False
@@ -225,8 +225,7 @@ def game(screen, background, clock, font):
 
     game_data = {
         "player": {"life": 3, "coordinate": [150, 270], "lasers": []},
-        "invader_data":  invader(),
-        "invaderLaserList": [],
+        "invader":  {"coordinate": invader(), "lasers": []},
         "defence": [
             {"coordinate": (60, 220), "life": 3},
             {"coordinate": (135, 220), "life": 3},
@@ -280,7 +279,7 @@ def game(screen, background, clock, font):
             player_laser.append([player_pos[0] + 10, player_pos[1] - 15])
 
         # Game Update.
-        runnning = check_end_game(game_data["invader_data"], game_data["player"])
+        runnning = check_end_game(game_data["invader"]["coordinate"], game_data["player"])
         game_data, direction = update_invader(game_data, direction, game_tick)
 
         # UI update.
@@ -295,7 +294,7 @@ def game(screen, background, clock, font):
         screen.blit(background, (0, 0))
 
     # Check If game win or lost.
-    if game_data["invader_data"] == [] and player_life > 0:
+    if game_data["invader"]["coordinate"] == [] and player_life > 0:
         return "Game Win"
 
     return "Game Lost"
@@ -303,13 +302,15 @@ def game(screen, background, clock, font):
 
 def main():
     """
-    Main function who manage everything.
+    Starting point of the game code.
+    Manage everything form the intro screen to the outro screen and allow to play again.
     """
 
+    # init pygame, import every module in pygame.
     pg.init()
 
     # Setup the font.
-    font = pg.font.SysFont("Comic Sans MS", 15)
+    font_basic = pg.font.SysFont("Comic Sans MS", 15)
     font_title = pg.font.SysFont("Comic Sans MS", 30)
     font_color = (255, 255, 255)
 
@@ -321,14 +322,18 @@ def main():
     clock = pg.time.Clock()
 
     # Start intro screen and wait for player.
-    intro(screen, font_title, font, font_color)
+    intro(screen, font_title, font_basic, font_color)
 
+    # Game.
     play = True
     while play:
 
-        result = game(screen, background, clock, font)
+        # Game logic
+        result = game(screen, background, clock, font_basic)
 
-        outro(result, screen, font_title, font, font_color)
+        # Game terminated draw outro screen
+        # and wait for player input to continue or stop.
+        outro(result, screen, font_title, font_basic, font_color)
 
 
 if __name__ == "__main__":
