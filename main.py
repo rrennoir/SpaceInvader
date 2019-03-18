@@ -2,9 +2,13 @@
 Little Space Invader game just for fun ;)
 """
 from random import randint
+
 import pygame as pg
 from pygame import surface # for pylint bug only, this is necessary.
+
 from laser import laser_hit
+from blit_text import blit_text
+from game_menu import intro, outro, pause
 
 
 def invader():
@@ -199,77 +203,6 @@ def check_end_game(invader_data, player):
     return True
 
 
-def blit_text(screen, text_to_print, pos, font, color):
-    """
-    Print text_to_print on a surface.
-
-    Parameters:
-    -----------
-    screen: Surface of the window (surface)
-    text_to_print: text to print (str)
-    pos: Top left position to print the text (list)
-    font: Font of the text to print (font)
-    color: Color of the text to print (list)
-    """
-
-    text_to_print = [text_to_print.split(' ') for text_to_print in text_to_print.splitlines()]
-    space = font.size(' ')[0]  # The width of a space.
-    max_width = 300
-    x_pos = pos[0]
-    y_pos = pos[1]
-
-    for line in text_to_print:
-
-        for word in line:
-            word_surface = font.render(word, 0, color)
-            word_width, word_height = word_surface.get_size()
-
-            # If the word go further
-            if x_pos + word_width >= max_width:
-                x_pos = pos[0]  # Reset the x_pos.
-                y_pos += word_height  # Start on new row.
-
-            # Draw to the screen and pass to the nex x_pos value.
-            screen.blit(word_surface, (x_pos, y_pos))
-            x_pos += word_width + space
-
-        # Reset x_pos axis and start a new row.
-        x_pos = pos[0]
-        y_pos += word_height
-
-
-def pause(screen, background, font, font_color):
-    """
-    Pause the game.
-
-    Parameters:
-    -----------
-    screen: Surface of the window (surface)
-    background: Surface of the screen (surface)
-    font: Font used to print text on surface (font)
-    font_color: Color of the font (tuple)
-    """
-    paused = True
-    screen.fill((0, 0, 0))
-    text_to_print_pause = "Pause\n press SPACE to resume"
-
-    while paused:
-
-        keys = pg.key.get_pressed()
-        for event in pg.event.get():
-
-            if event.type == pg.QUIT:
-                paused = False
-                quit()
-
-        if keys[pg.K_SPACE]:
-            paused = False
-
-        blit_text(screen, text_to_print_pause, (65, 125), font, font_color)
-        pg.display.update()
-        screen.blit(background, (0, 0))
-
-
 def game(screen, background, clock, font):
     """
     Function with the game loop.
@@ -300,7 +233,7 @@ def game(screen, background, clock, font):
             {"coordinate": (210, 220), "life": 3}],
         "score": 0}
 
-    text_to_print_color = (255, 255, 255)
+    font_color = (255, 255, 255)
 
     runnning = True
     while runnning:
@@ -320,7 +253,7 @@ def game(screen, background, clock, font):
                 quit()
 
         if keys[pg.K_ESCAPE]:
-            pause(screen, background, font, text_to_print_color)
+            pause(screen, background, font, font_color)
 
         # Unpack variable from game_data for easier reading.
         player_pos = game_data["player"]["coordinate"]
@@ -352,7 +285,7 @@ def game(screen, background, clock, font):
 
         # UI update.
         ui_text_to_print = "Life: {}    Score: {}".format(player_life, score)
-        blit_text(screen, ui_text_to_print, (0, 0), font, text_to_print_color)
+        blit_text(screen, ui_text_to_print, (0, 0), font, font_color)
 
         # Game Drawn.
         draw(screen, game_data)
@@ -377,8 +310,8 @@ def main():
 
     # Setup the font.
     font = pg.font.SysFont("Comic Sans MS", 15)
-    font_intro = pg.font.SysFont("Comic Sans MS", 30)
-    text_to_print_color = (255, 255, 255)
+    font_title = pg.font.SysFont("Comic Sans MS", 30)
+    font_color = (255, 255, 255)
 
     # Setup window and game clock.
     display_size = [300, 300]
@@ -387,65 +320,15 @@ def main():
     background = surface.Surface(screen.get_size())
     clock = pg.time.Clock()
 
-    # Intro
-    text_to_print_intro = "SPACE INVADER"
-    text_to_print_intro_2 = "Press SPACE to play or\n press ESCAPE to exit."
-    text_to_print_into_surface = font_intro.render(text_to_print_intro, 0, text_to_print_color)
-    blit_text(screen, text_to_print_intro_2, (65, 125), font, text_to_print_color)
-    screen.blit(text_to_print_into_surface, (25, 45))
-
-    # blit_text(screen, text_to_print_intro, (0,0), font_intro, text_to_print_color)
-    pg.display.update()
-
-    wait_input = True
-    while wait_input:
-
-        # Quit the game if the quit boutton is pressed or ESCAPE.
-        keys = pg.key.get_pressed()
-        for event in pg.event.get():
-
-            if keys[pg.K_ESCAPE] or (event.type == pg.QUIT):
-                wait_input = False
-                quit()
-
-        # Continue to play when SPACE is pressed.
-        if keys[pg.K_SPACE]:
-            wait_input = False
+    # Start intro screen and wait for player.
+    intro(screen, font_title, font, font_color)
 
     play = True
     while play:
 
         result = game(screen, background, clock, font)
 
-        screen.fill((0, 0, 0))
-
-        text_to_print_end_game = "Press SPACE to try again \nor press ESCAPE to exit."
-        word_surface = font.render(result, 0, text_to_print_color)
-        screen.blit(word_surface, (115, 80))
-        blit_text(screen, text_to_print_end_game, (65, 125), font, text_to_print_color)
-
-        pg.display.update()
-
-        wait_input = True
-        while wait_input:
-
-            # Quit the game if the quit boutton is pressed or ESCAPE.
-            keys = pg.key.get_pressed()
-
-            for event in pg.event.get():
-
-                if keys[pg.K_ESCAPE] or (event.type == pg.QUIT):
-                    wait_input = False
-                    quit()
-
-            # Quit if ESCAPE is pressed.
-            if keys[pg.K_ESCAPE]:
-                wait_input = False
-                quit()
-
-            # Continue if SPACE is pressed.
-            if keys[pg.K_SPACE]:
-                wait_input = False
+        outro(result, screen, font_title, font, font_color)
 
 
 if __name__ == "__main__":
