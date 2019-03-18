@@ -8,7 +8,7 @@ from pygame import surface
 
 def invader():
     """
-    Setup all _invader position into a list of coordinate.
+    Setup all invader position into a list of coordinate.
 
     Return:
     -------
@@ -306,16 +306,16 @@ def check_end_game(invader_data, player):
     return True
 
 
-def blittext_to_print(screen, text_to_print, pos, font, color):
+def blit_text(screen, text_to_print, pos, font, color):
     """
     Print text_to_print on a surface.
 
     Parameters:
     -----------
     screen: Surface of the window (surface)
-    text_to_print: text_to_print to print (str)
-    pos: Top left position to print the text_to_print (list)
-    font: Font of the text_to_print to print (font)
+    text_to_print: text to print (str)
+    pos: Top left position to print the text (list)
+    font: Font of the text to print (font)
     color: Color of the text to print (list)
     """
 
@@ -366,7 +366,7 @@ def pause(screen, background, font, font_color):
         if keys[pg.K_SPACE]:
             paused = False
 
-        blittext_to_print(screen, text_to_print_pause, (65, 125), font, font_color)
+        blit_text(screen, text_to_print_pause, (65, 125), font, font_color)
         pg.display.update()
         screen.blit(background, (0, 0))
 
@@ -380,7 +380,7 @@ def game(screen, background, clock, font):
     screen: Surface of the window (surface)
     background: Surface of the screen (surface)
     clock: Object who track time (clock)
-    font: Font used to print text_to_print on surface (font)
+    font: Font used to print text on surface (font)
 
     Return:
     -------
@@ -453,7 +453,7 @@ def game(screen, background, clock, font):
 
         # UI update.
         ui_text_to_print = "Life: {}    Score: {}".format(player_life, score)
-        blittext_to_print(screen, ui_text_to_print, (0, 0), font, text_to_print_color)
+        blit_text(screen, ui_text_to_print, (0, 0), font, text_to_print_color)
 
         # Game Drawn.
         draw(screen, game_data)
@@ -492,10 +492,10 @@ def main():
     text_to_print_intro = "SPACE INVADER"
     text_to_print_intro_2 = "Press SPACE to play or\n press ESCAPE to exit."
     text_to_print_into_surface = font_intro.render(text_to_print_intro, 0, text_to_print_color)
-    blittext_to_print(screen, text_to_print_intro_2, (65, 125), font, text_to_print_color)
+    blit_text(screen, text_to_print_intro_2, (65, 125), font, text_to_print_color)
     screen.blit(text_to_print_into_surface, (25, 45))
 
-    # blittext_to_print(screen, text_to_print_intro, (0,0), font_intro, text_to_print_color)
+    # blit_text(screen, text_to_print_intro, (0,0), font_intro, text_to_print_color)
     pg.display.update()
 
     wait_input = True
@@ -523,7 +523,7 @@ def main():
         text_to_print_end_game = "Press SPACE to try again \nor press ESCAPE to exit."
         word_surface = font.render(result, 0, text_to_print_color)
         screen.blit(word_surface, (115, 80))
-        blittext_to_print(screen, text_to_print_end_game, (65, 125), font, text_to_print_color)
+        blit_text(screen, text_to_print_end_game, (65, 125), font, text_to_print_color)
 
         pg.display.update()
 
