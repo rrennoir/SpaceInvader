@@ -10,9 +10,9 @@ def intro(screen, font_title, font_text, font_color):
 
     Parameters:
     -----------
-    screen: (surface)
-    font: (font)
-    font_color: (tuple)
+    screen: Surface of the window (surface)
+    font: Font used for the text (font)
+    font_color: Color for the text (tuple)
     """
     text_to_print_intro = "SPACE INVADER"
     text_to_print_intro_2 = "Press SPACE to play or\n press ESCAPE to exit."
@@ -43,9 +43,9 @@ def outro(result, screen, font_title_result, font, font_color):
 
     Parameters:
     -----------
-    result: (str)
-    screen: (surface)
-    font: (font)
+    result: Result of the game (str)
+    screen: Surface of the window (surface)
+    font: Font used for the text (font)
     font_color: (tuple or list)
     """
     # Make the screen black to clear the screen.
@@ -53,7 +53,7 @@ def outro(result, screen, font_title_result, font, font_color):
 
     text_to_print_end_game = "Press SPACE to try again \nor press ESCAPE to exit."
 
-    blit_text(screen, result, (80, 80), font_title_result, font_color)
+    blit_text(screen, result, (80, 60), font_title_result, font_color)
     blit_text(screen, text_to_print_end_game, (65, 125), font, font_color)
 
     pg.display.update()
