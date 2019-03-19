@@ -20,28 +20,36 @@ def invader_laser_hit(player, invader_laser_list, defence_list):
 
     for invader_laser in invader_laser_list:
 
-        laser_pos_x = invader_laser[0]
-        laser_pos_y = invader_laser[1]
-
-        # Defence.
-        for defences in defence_list:
-
-            if defences["life"] > 0:
-                defences_pos_x = defences["coordinate"][0]
-                defences_pos_y = defences["coordinate"][1]
-
-                if ((defences_pos_x < laser_pos_x < defences_pos_x + 30)
-                        and (defences_pos_y < laser_pos_y < defences_pos_y + 20)):
-
-                    invader_laser_to_delete.append(invader_laser)
-                    defences["life"] -= 1
-
-        # Player.
-        if ((player_pos_x < laser_pos_x + 7 < player_pos_x + 20)
-                and (player_pos_y < laser_pos_y + 7 < player_pos_y + 15)):
+        # Remove laser out of the screen
+        if invader_laser[1] > 300:
 
             invader_laser_to_delete.append(invader_laser)
-            player["life"] -= 1
+
+        # Check if the laser hit something.
+        else:
+
+            laser_pos_x = invader_laser[0]
+            laser_pos_y = invader_laser[1]
+
+            # Defence.
+            for defences in defence_list:
+
+                if defences["life"] > 0:
+                    defences_pos_x = defences["coordinate"][0]
+                    defences_pos_y = defences["coordinate"][1]
+
+                    if ((defences_pos_x < laser_pos_x < defences_pos_x + 30)
+                            and (defences_pos_y < laser_pos_y < defences_pos_y + 20)):
+
+                        invader_laser_to_delete.append(invader_laser)
+                        defences["life"] -= 1
+
+            # Player.
+            if ((player_pos_x < laser_pos_x + 7 < player_pos_x + 20)
+                    and (player_pos_y < laser_pos_y + 7 < player_pos_y + 15)):
+
+                invader_laser_to_delete.append(invader_laser)
+                player["life"] -= 1
 
     # Delete _invader laser who hit.
     for invader_laser_deleted in invader_laser_to_delete:
@@ -71,31 +79,39 @@ def player_laser_hit(player_laser_list, invader_list, defence_list, score):
     # Find if a laser is in an _invader hit box.
     for player_laser in player_laser_list:
 
-        laser_pos_x = player_laser[0]
-        laser_pos_y = player_laser[1]
+        # Remove laser out of the screen
+        if player_laser[1] < 0:
 
-        for defences in defence_list:
+            player_laser_to_delete.append(player_laser)
 
-            if defences["life"] > 0:
-                defences_pos_x = defences["coordinate"][0]
-                defences_pos_y = defences["coordinate"][1]
+        # Check if a laser hit something.
+        else:
 
-                if ((defences_pos_x < laser_pos_x < defences_pos_x + 30)
-                        and (defences_pos_y < laser_pos_y < defences_pos_y + 20)):
+            laser_pos_x = player_laser[0]
+            laser_pos_y = player_laser[1]
 
+            for defences in defence_list:
+
+                if defences["life"] > 0:
+                    defences_pos_x = defences["coordinate"][0]
+                    defences_pos_y = defences["coordinate"][1]
+
+                    if ((defences_pos_x < laser_pos_x < defences_pos_x + 30)
+                            and (defences_pos_y < laser_pos_y < defences_pos_y + 20)):
+
+                        player_laser_to_delete.append(player_laser)
+
+            for _invader in invader_list:
+
+                invader_pos_x = _invader[0]
+                invader_pos_y = _invader[1]
+
+                if ((invader_pos_x < laser_pos_x < invader_pos_x + 15)
+                        and (invader_pos_y < laser_pos_y < invader_pos_y + 15)):
+
+                    score += 10
                     player_laser_to_delete.append(player_laser)
-
-        for _invader in invader_list:
-
-            invader_pos_x = _invader[0]
-            invader_pos_y = _invader[1]
-
-            if ((invader_pos_x < laser_pos_x < invader_pos_x + 15)
-                    and (invader_pos_y < laser_pos_y < invader_pos_y + 15)):
-
-                score += 10
-                player_laser_to_delete.append(player_laser)
-                invader_to_delete.append(_invader)
+                    invader_to_delete.append(_invader)
 
     # Delete player laser who hit.
     for player_laser_deleted in player_laser_to_delete:
