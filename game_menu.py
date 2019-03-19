@@ -80,7 +80,7 @@ def outro(result, screen, font_title_result, font, font_color):
             wait_input = False
 
 
-def pause(screen, background, font_title, font, font_color):
+def pause(screen, font_title, font, font_color):
     """
     Pause the game.
 
@@ -97,6 +97,12 @@ def pause(screen, background, font_title, font, font_color):
     text_title = "Pause"
     text = "Press SPACE to resume"
 
+    blit_text(screen, text_title, (115, 65), font_title, font_color)
+    blit_text(screen, text, (80, 135), font, font_color)
+
+    pg.display.flip()
+    screen.blit(screen, (0, 0))
+    
     while paused:
 
         keys = pg.key.get_pressed()
@@ -109,7 +115,4 @@ def pause(screen, background, font_title, font, font_color):
         if keys[pg.K_SPACE]:
             paused = False
 
-        blit_text(screen, text_title, (115, 65), font_title, font_color)
-        blit_text(screen, text, (80, 135), font, font_color)
-        pg.display.update()
-        screen.blit(background, (0, 0))
+        

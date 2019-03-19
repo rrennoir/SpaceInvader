@@ -2,7 +2,6 @@
 Little Space Invader game just for fun ;)
 """
 import pygame as pg
-from pygame import surface # for pylint bug only, this is necessary.
 
 from game_update import game_update
 from blit_text import blit_text
@@ -45,10 +44,12 @@ def draw(screen, game_data):
     """
 
     # RGB colors.
-    yellow = (255, 255, 0)
-    red = (255, 0, 0)
-    blue = (0, 0, 255)
-    green = (0, 255, 0)
+    rgb = {
+        "yellow": (255, 255, 0),
+        "red": (255, 0, 0),
+        "blue": (0, 0, 255),
+        "green": (0, 255, 0)}
+
     color_defence = (
         (50, 0, 50),
         (100, 0, 100),
@@ -57,17 +58,17 @@ def draw(screen, game_data):
     # Draw _invader.
     for invader_position in game_data["invader"]["coordinate"]:
         invader_rect = pg.Rect(invader_position, (15, 15))
-        pg.draw.ellipse(screen, yellow, invader_rect)
+        pg.draw.ellipse(screen, rgb["yellow"], invader_rect)
 
     # Draw the player lasers.
     for player_laser_position in game_data["player"]["lasers"]:
         player_laser_rect = pg.Rect(player_laser_position, (2, 7))
-        pg.draw.rect(screen, blue, player_laser_rect)
+        pg.draw.rect(screen, rgb["blue"], player_laser_rect)
 
     # Draw the _invader lasers.
     for invader_laser_position in game_data["invader"]["lasers"]:
         invader_laser_rect = pg.Rect(invader_laser_position, (2, 7))
-        pg.draw.rect(screen, green, invader_laser_rect)
+        pg.draw.rect(screen, rgb["green"], invader_laser_rect)
 
     # Draw defences.
     for defences in game_data["defence"]:
@@ -80,15 +81,16 @@ def draw(screen, game_data):
     player_pos_x = game_data["player"]["coordinate"][0]
     player_pos_y = game_data["player"]["coordinate"][1]
 
+    # Triangle coordinate.
     triangle_coordinate = (
         (player_pos_x, player_pos_y),
         (player_pos_x + 10, player_pos_y - 15),
         (player_pos_x + 20, player_pos_y))
 
-    pg.draw.polygon(screen, red, triangle_coordinate)
+    pg.draw.polygon(screen, rgb["red"], triangle_coordinate)
 
 
-def game(screen, background, clock, font_title, font):
+def game(screen, clock, font_title, font):
     """
     Function with the game loop.
 
@@ -123,8 +125,8 @@ def game(screen, background, clock, font_title, font):
     runnning = True
     while runnning:
 
-        # Set the game to 60 update per second.
-        clock.tick(60)
+        # Clear the screen from previous frame.
+        screen.fill((0, 0, 0))
 
         # Quit the game if the quit boutton is pressed.
         keys = pg.key.get_pressed()
@@ -134,8 +136,9 @@ def game(screen, background, clock, font_title, font):
                 runnning = False
                 quit()
 
+        # Pause the game is ESCAPE is pressed.
         if keys[pg.K_ESCAPE]:
-            pause(screen, background, font_title, font, font_color)
+            pause(screen, font_title, font, font_color)
 
         # Unpack variable from game_data for easier reading.
         player_life = game_data["player"]["life"]
@@ -152,8 +155,11 @@ def game(screen, background, clock, font_title, font):
         draw(screen, game_data)
 
         # Display update pygame.
-        pg.display.update()
-        screen.blit(background, (0, 0))
+        screen.blit(screen, (0, 0))
+        pg.display.flip()
+
+        # Set the game to 60 update per second.
+        clock.tick(60)
 
     # Check If game win or lost.
     if game_data["invader"]["coordinate"] == [] and player_life > 0:
@@ -176,11 +182,13 @@ def main():
     font_title = pg.font.SysFont("Comic Sans MS", 30)
     font_color = (255, 255, 255)
 
-    # Setup window and game clock.
+    # Setup window of 300 by 300 pixel.
     display_size = [300, 300]
     screen = pg.display.set_mode(display_size)
-    # import surface separetly to remove "too many positional arguments for lambda call" bug.
-    background = surface.Surface(screen.get_size())
+
+    # Set the windows title
+    pg.display.set_caption("Space Invader")
+
     clock = pg.time.Clock()
 
     # Start intro screen and wait for player.
@@ -191,7 +199,7 @@ def main():
     while play:
 
         # Game logic
-        result = game(screen, background, clock, font_title, font_basic)
+        result = game(screen, clock, font_title, font_basic)
 
         # Game terminated draw outro screen
         # and wait for player input to continue or stop.

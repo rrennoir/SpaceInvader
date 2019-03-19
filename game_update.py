@@ -177,7 +177,7 @@ def game_update(game_data, direction, game_tick):
     # Add one tick to the tick counter and reset at 0 if reach 60.
     if game_tick == 60:
         game_tick = 0
- 
+
     game_tick += 1
 
     # Get keyboard input and update the player.
