@@ -101,25 +101,27 @@ def player_laser_hit(player_laser_list, invader_list, defence_list, score):
 
                         player_laser_to_delete.append(player_laser)
 
-            for _invader in invader_list:
+            for invader_row in invader_list:
+                for _invader in invader_row:
 
-                invader_pos_x = _invader[0]
-                invader_pos_y = _invader[1]
+                    invader_pos_x = _invader[0]
+                    invader_pos_y = _invader[1]
 
-                if ((invader_pos_x < laser_pos_x < invader_pos_x + 15)
-                        and (invader_pos_y < laser_pos_y < invader_pos_y + 15)):
+                    if ((invader_pos_x < laser_pos_x < invader_pos_x + 15)
+                            and (invader_pos_y < laser_pos_y < invader_pos_y + 15)):
 
-                    score += 10
-                    player_laser_to_delete.append(player_laser)
-                    invader_to_delete.append(_invader)
+                        score += 10
+                        player_laser_to_delete.append(player_laser)
+                        invader_to_delete.append(_invader)
 
     # Delete player laser who hit.
     for player_laser_deleted in player_laser_to_delete:
         player_laser_list.pop(player_laser_list.index(player_laser_deleted))
 
     # Delete _invader destroyed.
-    for invader_deleted in invader_to_delete:
-        invader_list.pop(invader_list.index(invader_deleted))
+    # TODO fix for new data structure
+    # for invader_deleted in invader_to_delete:
+    #     invader_list.pop(invader_list.index(invader_deleted))
 
     return score
 
