@@ -167,10 +167,10 @@ def game(screen, clock, font_title, font):
         score = game_data["score"]
 
         # Game Update.
-        # game_data, direction, runnning, game_tick = game_update(game_data, direction, game_tick)
+        game_data, direction, runnning, game_tick = game_update(game_data, direction, game_tick)
 
         # UI update.
-        ui_text_to_print = "Life: {}    Score: {}".format(player_life, score)
+        ui_text_to_print = "Life: {}    Score: {}    FPS: {}".format(player_life, score, int(clock.get_fps()))
         blit_text(screen, ui_text_to_print, (0, 0), font, font_color)
 
         # Game Drawn.
