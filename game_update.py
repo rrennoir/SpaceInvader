@@ -38,10 +38,21 @@ def keyboard_input(game_data, game_tick):
 
             player_pos[0] = 280
 
-    # Check if SPACE is pressed and allow only 5 update per second (so 5 shoot/s).
-    if keys[pg.K_SPACE] and (game_tick % 12 == 0):
+    # Check if SPACE is pressed and allow only 1 update per second (so 1 shoot/s).
+    if keys[pg.K_SPACE] and (game_tick % 60 == 0):
 
         player_laser.append([player_pos[0] + 10, player_pos[1] - 15])
+
+    # Cheat mode.
+
+    # Kill all invaders.
+    if keys[pg.K_F8]:
+
+        game_data["invader"]["coordinate"] = {
+            "mysterySpaceShip": [],
+            "topRow": [[], []],
+            "middleRow": [[], []],
+            "bottomRow": [[], []]}
 
     return game_data
 
@@ -64,12 +75,13 @@ def check_end_game(invader_data, player):
 
     for row in invader_data:
 
-        if invader_data[row] == []:
+        if invader_data[row] != [[], []] and row != "mysterySpaceShip":
             empty = False
 
-        for invader_pos in invader_data[row]:
-            if invader_pos[1][0] + 15 >= 300:
-                return False
+        for sub_row in invader_data[row]:
+            for invader_pos in sub_row:
+                if invader_pos[0] + 15 >= 400:
+                    return False
 
     if empty or player["life"] <= 0:
         return False
@@ -192,7 +204,7 @@ def game_update(game_data, direction, game_tick):
     game_data = keyboard_input(game_data, game_tick)
 
     # Update lasers and invaders.
-    # game_data = laser_hit(game_data)
+    game_data = laser_hit(game_data)
     game_data, direction = update_invader(game_data, direction, game_tick)
 
     # Check if the game is finished.
