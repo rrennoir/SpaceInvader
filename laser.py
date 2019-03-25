@@ -1,6 +1,51 @@
 """
 Laser hit systeme.
 """
+from random import randint
+
+
+def invader_shoot(invader_list, invader_laser, player_pos_x):
+    """
+    Make the invader shoot.
+
+    Parameters:
+    -----------
+    invader_list: (dict)
+    invader_laser: (list)
+    player_pos: (int)
+
+    Return:
+    -------
+    invader_laser: (list)
+    """
+
+    first_invader_list = {}
+    for row in invader_list:
+        for invader_row in invader_list[row]:
+            for invader_pos in invader_row:
+
+                ref = str(invader_pos[0])
+                if ref in first_invader_list:
+
+                    if invader_pos[1] > first_invader_list[ref][1][1]:
+                        first_invader_list[ref][1] = invader_pos
+
+                    if row != first_invader_list[ref][0]:
+                        first_invader_list[ref][0] = row
+
+
+                else:
+                    first_invader_list.update({ref: [row, invader_pos]})
+
+    for pos in first_invader_list:
+        if player_pos_x - 50 < int(pos) < player_pos_x + 50:
+
+            if randint(0, 100) > 75:
+                invader_pos = first_invader_list[pos][1]
+                invader_laser.append([invader_pos[0], invader_pos[1]])
+
+    return invader_laser
+
 
 def invader_laser_hit(player, invader_laser_list, defence_list):
     """
