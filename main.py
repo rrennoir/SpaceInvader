@@ -162,12 +162,12 @@ def game(screen, clock, font_title, font):
         if keys[pg.K_ESCAPE]:
             pause(screen, font_title, font, font_color)
 
+        # Game Update.
+        game_data, direction, runnning, game_tick = game_update(game_data, direction, game_tick)
+
         # Unpack variable from game_data for easier reading.
         player_life = game_data["player"]["life"]
         score = game_data["score"]
-
-        # Game Update.
-        game_data, direction, runnning, game_tick = game_update(game_data, direction, game_tick)
 
         # UI update.
         ui_text_to_print = "Life: {}    Score: {}    FPS: {}".format(player_life, score, int(clock.get_fps()))
@@ -184,8 +184,9 @@ def game(screen, clock, font_title, font):
         clock.tick(60)
 
     # Check If game win or lost.
-    # if game_data["invader"]["coordinate"] == [] and player_life > 0:
-    #     return "Game Win"
+    if player_life > 0:
+        print(player_life)
+        return "Game Win"
 
     return "Game Lost"
 
