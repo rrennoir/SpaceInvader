@@ -83,18 +83,20 @@ def invader_laser_hit(player, invader_laser_list, defence_list):
                     defences_pos_x = defences["coordinate"][0]
                     defences_pos_y = defences["coordinate"][1]
 
-                    if ((defences_pos_x < laser_pos_x < defences_pos_x + 30)
-                            and (defences_pos_y < laser_pos_y < defences_pos_y + 20)):
+                    if ((defences_pos_x < laser_pos_x < defences_pos_x + 10)
+                            and (defences_pos_y < laser_pos_y < defences_pos_y + 10)):
 
-                        invader_laser_to_delete.append(invader_laser)
-                        defences["life"] -= 1
+                        if invader_laser not in invader_laser_to_delete:
+                            invader_laser_to_delete.append(invader_laser)
+                            defences["life"] -= 1
 
             # Player.
             if ((player_pos_x < laser_pos_x + 7 < player_pos_x + 20)
                     and (player_pos_y < laser_pos_y + 7 < player_pos_y + 15)):
 
-                invader_laser_to_delete.append(invader_laser)
-                player["life"] -= 1
+                if invader_laser not in invader_laser_to_delete:
+                    invader_laser_to_delete.append(invader_laser)
+                    player["life"] -= 1
 
     # Delete _invader laser who hit.
     for invader_laser_deleted in invader_laser_to_delete:
@@ -141,10 +143,11 @@ def player_laser_hit(player_laser_list, invader_list, defence_list, score):
                     defences_pos_x = defences["coordinate"][0]
                     defences_pos_y = defences["coordinate"][1]
 
-                    if ((defences_pos_x < laser_pos_x < defences_pos_x + 30)
-                            and (defences_pos_y < laser_pos_y < defences_pos_y + 20)):
+                    if ((defences_pos_x < laser_pos_x < defences_pos_x + 10)
+                            and (defences_pos_y < laser_pos_y < defences_pos_y + 10)):
 
-                        player_laser_to_delete.append(player_laser)
+                        if player_laser not in player_laser_to_delete:
+                            player_laser_to_delete.append(player_laser)
 
             for invader_row in invader_list:
                 for sub_row in invader_list[invader_row]:
