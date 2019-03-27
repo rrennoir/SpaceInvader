@@ -17,16 +17,31 @@ def invader():
     invader_data: list of coordinate (list)
     """
 
-    # Create invader data structur.
-    invader_data = []
-    for j in range(3):
-        for invader_pos in range(10):
+    # Create invader data structur.²
+    invader_data = {
+        "mysterySpaceShip": [],
+        "topRow": [],
+        "middleRow": [],
+        "bottomRow": []}
 
-            # offset the X axis by 25 pixel to center the invader platoon
-            # and offset the Y axis by 50 pixel to let place for the UI on the top.
-            invader_position = [(invader_pos * 25) + 25, j * 25 + 50]
+    x_pos = 15
+    y_pos = 50
 
-            invader_data.append(invader_position)
+    for row_name in invader_data:
+
+        if row_name != "mysterySpaceShip":
+            for _row in range(2):
+
+                invader_row = []
+                for _invader in range(11):
+
+                    invader_position = [x_pos, y_pos]
+                    invader_row.append(invader_position)
+                    x_pos += 25
+
+                invader_data[row_name].append(invader_row)
+                y_pos += 25 # Change row
+                x_pos = 15 # Reset to the left of the screen
 
     return invader_data
 
@@ -56,9 +71,13 @@ def draw(screen, game_data):
         (150, 0, 150))
 
     # Draw _invader.
-    for invader_position in game_data["invader"]["coordinate"]:
-        invader_rect = pg.Rect(invader_position, (15, 15))
-        pg.draw.ellipse(screen, rgb["yellow"], invader_rect)
+    invader_coord = game_data["invader"]["coordinate"]
+    for row_name in invader_coord:
+        for invader_row in invader_coord[row_name]:
+            for invader_position in invader_row:
+                invader_rect = pg.Rect(invader_position, (15, 15))
+                pg.draw.ellipse(screen, rgb["yellow"], invader_rect)
+
 
     # Draw the player lasers.
     for player_laser_position in game_data["player"]["lasers"]:
@@ -111,14 +130,17 @@ def game(screen, clock, font_title, font):
     direction = 1
     game_tick = 0
 
+    screen_height = screen.get_height()
+
     game_data = {
-        "player": {"life": 3, "coordinate": [150, 270], "lasers": []},
+        "player": {"life": 3, "coordinate": [140, screen_height - 30], "lasers": []},
         "invader":  {"coordinate": invader(), "lasers": []},
         "defence": [
-            {"coordinate": (60, 220), "life": 3},
-            {"coordinate": (135, 220), "life": 3},
-            {"coordinate": (210, 220), "life": 3}],
-        "score": 0}
+            {"coordinate": (60, screen_height - 80), "life": 3},
+            {"coordinate": (135, screen_height - 80), "life": 3},
+            {"coordinate": (210, screen_height - 80), "life": 3}],
+        "score": 0,
+        "direction": 1}
 
     font_color = (255, 255, 255)
 
@@ -140,15 +162,15 @@ def game(screen, clock, font_title, font):
         if keys[pg.K_ESCAPE]:
             pause(screen, font_title, font, font_color)
 
+        # Game Update.
+        game_data, direction, runnning, game_tick = game_update(game_data, direction, game_tick)
+
         # Unpack variable from game_data for easier reading.
         player_life = game_data["player"]["life"]
         score = game_data["score"]
 
-        # Game Update.
-        game_data, direction, runnning, game_tick = game_update(game_data, direction, game_tick)
-
         # UI update.
-        ui_text_to_print = "Life: {}    Score: {}".format(player_life, score)
+        ui_text_to_print = "Life: {}    Score: {}    FPS: {}    WIP".format(player_life, score, int(clock.get_fps()))
         blit_text(screen, ui_text_to_print, (0, 0), font, font_color)
 
         # Game Drawn.
@@ -162,7 +184,8 @@ def game(screen, clock, font_title, font):
         clock.tick(60)
 
     # Check If game win or lost.
-    if game_data["invader"]["coordinate"] == [] and player_life > 0:
+    if player_life > 0:
+        print(player_life)
         return "Game Win"
 
     return "Game Lost"
@@ -182,8 +205,8 @@ def main():
     font_title = pg.font.SysFont("Comic Sans MS", 30)
     font_color = (255, 255, 255)
 
-    # Setup window of 300 by 300 pixel.
-    display_size = [300, 300]
+    # Setup window of 300 by 400 pixel.
+    display_size = [300, 400]
     screen = pg.display.set_mode(display_size)
 
     # Set the windows title

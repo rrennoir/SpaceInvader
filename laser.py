@@ -1,6 +1,51 @@
 """
 Laser hit systeme.
 """
+from random import randint
+
+
+def invader_shoot(invader_list, invader_laser, player_pos_x):
+    """
+    Make the invader shoot.
+
+    Parameters:
+    -----------
+    invader_list: (dict)
+    invader_laser: (list)
+    player_pos: (int)
+
+    Return:
+    -------
+    invader_laser: (list)
+    """
+
+    first_invader_list = {}
+    for row in invader_list:
+        for invader_row in invader_list[row]:
+            for invader_pos in invader_row:
+
+                ref = str(invader_pos[0])
+                if ref in first_invader_list:
+
+                    if invader_pos[1] > first_invader_list[ref][1][1]:
+                        first_invader_list[ref][1] = invader_pos
+
+                    if row != first_invader_list[ref][0]:
+                        first_invader_list[ref][0] = row
+
+
+                else:
+                    first_invader_list.update({ref: [row, invader_pos]})
+
+    for pos in first_invader_list:
+        if player_pos_x - 50 < int(pos) < player_pos_x + 50:
+
+            if randint(0, 100) > 85:
+                invader_pos = first_invader_list[pos][1]
+                invader_laser.append([invader_pos[0], invader_pos[1]])
+
+    return invader_laser
+
 
 def invader_laser_hit(player, invader_laser_list, defence_list):
     """
@@ -21,7 +66,7 @@ def invader_laser_hit(player, invader_laser_list, defence_list):
     for invader_laser in invader_laser_list:
 
         # Remove laser out of the screen
-        if invader_laser[1] > 300:
+        if invader_laser[1] > 400:
 
             invader_laser_to_delete.append(invader_laser)
 
@@ -101,25 +146,37 @@ def player_laser_hit(player_laser_list, invader_list, defence_list, score):
 
                         player_laser_to_delete.append(player_laser)
 
-            for _invader in invader_list:
+            for invader_row in invader_list:
+                for sub_row in invader_list[invader_row]:
+                    for _invader in sub_row:
 
-                invader_pos_x = _invader[0]
-                invader_pos_y = _invader[1]
+                        invader_pos_x = _invader[0]
+                        invader_pos_y = _invader[1]
 
-                if ((invader_pos_x < laser_pos_x < invader_pos_x + 15)
-                        and (invader_pos_y < laser_pos_y < invader_pos_y + 15)):
+                        if ((invader_pos_x < laser_pos_x < invader_pos_x + 15)
+                                and (invader_pos_y < laser_pos_y < invader_pos_y + 15)):
 
-                    score += 10
-                    player_laser_to_delete.append(player_laser)
-                    invader_to_delete.append(_invader)
+                            if invader_row == "bottomRow":
+                                score += 10
+                            elif invader_row == "middleRow":
+                                score += 20
+
+                            elif invader_row == "topRow":
+                                score += 30
+
+                            player_laser_to_delete.append(player_laser)
+                            invader_to_delete.append([invader_row, sub_row, _invader])
 
     # Delete player laser who hit.
     for player_laser_deleted in player_laser_to_delete:
         player_laser_list.pop(player_laser_list.index(player_laser_deleted))
 
     # Delete _invader destroyed.
-    for invader_deleted in invader_to_delete:
-        invader_list.pop(invader_list.index(invader_deleted))
+    for invader_deleted_info in invader_to_delete:
+        row = invader_deleted_info[0]
+        sub_row = invader_list[row].index(invader_deleted_info[1])
+        position = invader_deleted_info[2]
+        invader_list[row][sub_row].pop(invader_list[row][sub_row].index(position)
 
     return score
 
@@ -136,16 +193,17 @@ def laser_hit(game_data):
     -------
     game_data: Updated data structure containing most of the information about the game. (dict)
     """
+
     player_laser_list = game_data["player"]["lasers"]
-    invader_list = game_data["invader"]["coordinate"]
+    invader_laser_list = game_data["invader"]["lasers"]
 
     # Lists empty get out of the function.
-    if player_laser_list == [] and invader_list == []:
+    if player_laser_list == [] and invader_laser_list == []:
         return game_data
 
     # Unpack data structure.
     player = game_data["player"]
-    invader_laser_list = game_data["invader"]["lasers"]
+    invader_list = game_data["invader"]["coordinate"]
     defence_list = game_data["defence"]
     score = game_data["score"]
 

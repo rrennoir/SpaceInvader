@@ -5,7 +5,7 @@ from random import randint
 
 import pygame as pg
 
-from laser import laser_hit
+from laser import laser_hit, invader_shoot
 
 
 def keyboard_input(game_data, game_tick):
@@ -38,10 +38,21 @@ def keyboard_input(game_data, game_tick):
 
             player_pos[0] = 280
 
-    # Check if SPACE is pressed and allow only 5 update per second (so 5 shoot/s).
-    if keys[pg.K_SPACE] and (game_tick % 12 == 0):
+    # Check if SPACE is pressed and allow only 1 update per second (so 1 shoot/s).
+    if keys[pg.K_SPACE] and (game_tick % 60 == 0):
 
         player_laser.append([player_pos[0] + 10, player_pos[1] - 15])
+
+    # Cheat mode.
+
+    # Kill all invaders.
+    if keys[pg.K_F8]:
+
+        game_data["invader"]["coordinate"] = {
+            "mysterySpaceShip": [],
+            "topRow": [[], []],
+            "middleRow": [[], []],
+            "bottomRow": [[], []]}
 
     return game_data
 
@@ -60,12 +71,20 @@ def check_end_game(invader_data, player):
     Result: if the game is finished retrun false, true otherwise.
     """
 
-    if invader_data == [] or player["life"] <= 0:
-        return False
+    empty = True
 
-    for invader_pos in invader_data:
-        if invader_pos[1] + 15 >= 300:
-            return False
+    for row in invader_data:
+
+        if invader_data[row] != [[], []] and row != "mysterySpaceShip":
+            empty = False
+
+        for sub_row in invader_data[row]:
+            for invader_pos in sub_row:
+                if invader_pos[0] + 15 >= 400:
+                    return False
+
+    if empty or player["life"] <= 0:
+        return False
 
     return True
 
@@ -86,11 +105,15 @@ def change_direction(invader_data, direction):
     """
 
     change = False
-    for _invader in invader_data:
+    for row in invader_data:
+        for sub_row in invader_data[row]:
+            for _invader in sub_row:
 
-        invader_pos_x = _invader[0]
-        if (invader_pos_x >= 280 and direction == 1) or (invader_pos_x <= 10 and direction == -1):
-            change = True
+                invader_pos_x = _invader[0]
+                if ((invader_pos_x >= 280 and direction == 1)
+                        or (invader_pos_x <= 10 and direction == -1)):
+
+                    change = True
 
     if change:
         direction *= -1
@@ -131,18 +154,15 @@ def update_invader(game_data, direction, game_tick):
             shift_down = 10
 
         # Update _invader position.
-        for _invader in invader_list:
+        for row in invader_list:
+            for sub_row in invader_list[row]:
+                for _invader in sub_row:
 
-            _invader[0] = _invader[0] + (10 * direction_new)
-            _invader[1] = _invader[1] + shift_down
+                    _invader[0] = _invader[0] + (10 * direction_new)
+                    _invader[1] = _invader[1] + shift_down
 
-            invader_pos_x = _invader[0]
-            player_pos_x = game_data["player"]["coordinate"][0]
-
-            # if player is in the area of attack shoot a laser (20% chance).
-            if (invader_pos_x - 50 < player_pos_x) and (invader_pos_x + 65 > player_pos_x):
-                if randint(0, 100) > 80:
-                    invader_laser.append([_invader[0], _invader[1]])
+        player_pos_x = game_data["player"]["coordinate"][0]
+        invader_laser = invader_shoot(invader_list, invader_laser, player_pos_x)
 
         direction = direction_new
 
@@ -150,8 +170,8 @@ def update_invader(game_data, direction, game_tick):
     for laser in player_laser:
         laser[1] -= 2
 
-    for invader_laser in invader_laser:
-        invader_laser[1] += 2
+    for _laser in invader_laser:
+        _laser[1] += 2
 
     return game_data, direction
 
