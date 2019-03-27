@@ -92,7 +92,7 @@ def draw(screen, game_data):
     for defences in game_data["defence"]:
 
         if defences["life"] > 0:
-            defences_rect = pg.Rect(defences["coordinate"], (30, 20))
+            defences_rect = pg.Rect(defences["coordinate"], (10, 10))
             pg.draw.rect(screen, color_defence[defences["life"] - 1], defences_rect)
 
     # Draw player.
@@ -128,18 +128,33 @@ def game(screen, clock, font_title, font):
     # Setup game_data.
     direction = 1
     game_tick = 0
+    shoot_tick = 0
 
     screen_height = screen.get_height()
 
     game_data = {
         "player": {"life": 3, "coordinate": [140, screen_height - 30], "lasers": []},
+
         "invader":  {"coordinate": invader(), "lasers": []},
+
         "defence": [
+            {"coordinate": (50, screen_height - 80), "life": 3},
             {"coordinate": (60, screen_height - 80), "life": 3},
+            {"coordinate": (70, screen_height - 80), "life": 3},
+
+            {"coordinate": (125, screen_height - 80), "life": 3},
             {"coordinate": (135, screen_height - 80), "life": 3},
-            {"coordinate": (210, screen_height - 80), "life": 3}],
+            {"coordinate": (145, screen_height - 80), "life": 3},
+
+            {"coordinate": (200, screen_height - 80), "life": 3},
+            {"coordinate": (210, screen_height - 80), "life": 3},
+            {"coordinate": (220, screen_height - 80), "life": 3}],
+
         "score": 0,
-        "direction": 1}
+
+        "direction": 1,
+
+        "tick": {"game": 0, "moving": 0, "shooting": 0}}
 
     font_color = (255, 255, 255)
 
@@ -162,7 +177,7 @@ def game(screen, clock, font_title, font):
             pause(screen, font_title, font, font_color)
 
         # Game Update.
-        game_data, direction, running, game_tick = game_update(game_data, direction, game_tick)
+        game_data, direction, running = game_update(game_data, direction)
 
         # Unpack variable from game_data for easier reading.
         player_life = game_data["player"]["life"]
