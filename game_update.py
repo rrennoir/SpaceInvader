@@ -1,21 +1,22 @@
 """
 Game update
 """
-from random import randint
-
 import pygame as pg
 
 from laser import laser_hit, invader_shoot
 
 
-def keyboard_input(game_data, game_tick):
+def keyboard_input(game_data):
     """
     Handle every keyboard input for the player.
 
     Parameters:
     -----------
     game_data: Data structure containing most of the information about the game. (dict)
-    game_tick: Number of tick elapsed this second, 1 tick = 16ms, 60 tick = 1s (int)
+
+    Retrun:
+    -------
+    game_data: Updated data structure containing most of the information about the game. (dict)
     """
 
     player_pos = game_data["player"]["coordinate"]
@@ -24,14 +25,14 @@ def keyboard_input(game_data, game_tick):
     keys = pg.key.get_pressed()
 
     # Check if LEFT or RIGHT arrow key is pressed and allow only 10 update per second.
-    if keys[pg.K_LEFT] and (game_tick % 6):
+    if keys[pg.K_LEFT]:
 
         player_pos[0] -= 2
         if player_pos[0] <= 0:
 
             player_pos[0] = 0
 
-    if keys[pg.K_RIGHT] and (game_tick % 6):
+    elif keys[pg.K_RIGHT]:
 
         player_pos[0] += 2
         if player_pos[0] >= 280:
@@ -39,12 +40,15 @@ def keyboard_input(game_data, game_tick):
             player_pos[0] = 280
 
     # Check if SPACE is pressed and allow only 1 update per second (so 1 shoot/s).
-    if keys[pg.K_SPACE] and (game_tick % 60 == 0):
+    if keys[pg.K_SPACE] and (game_data["tick"]["shooting"] == 0):
 
         player_laser.append([player_pos[0] + 10, player_pos[1] - 15])
+        game_data["tick"]["shooting"] = 60
+
+    elif game_data["tick"]["shooting"] > 0:
+        game_data["tick"]["shooting"] -= 1
 
     # Cheat mode.
-
     # Kill all invaders.
     if keys[pg.K_F8]:
 
@@ -121,7 +125,7 @@ def change_direction(invader_data, direction):
     return direction
 
 
-def update_invader(game_data, direction, game_tick):
+def update_invader(game_data, direction):
     """
     Update invaders, like position, laser position they have shootted and make them shoot randomly.
 
@@ -130,7 +134,6 @@ def update_invader(game_data, direction, game_tick):
     game_data: Data structure containing most of the information about the game. (dict)
     direction: Direction in witch way the invader array is going 1 or -1,
                 if set -1 the direction will be reversed (int)
-    game_tick: Number of tick elapsed this second, 1 tick = 16ms, 60 tick = 1s (int)
 
     Return:
     -------
@@ -145,7 +148,7 @@ def update_invader(game_data, direction, game_tick):
     player_laser = game_data["player"]["lasers"]
 
     # update _invader position every second aka every 60 frames.
-    if game_tick == 60:
+    if game_data["tick"]["game"] == 60:
         shift_down = 0
         direction_new = change_direction(invader_list, direction)
 
@@ -176,7 +179,7 @@ def update_invader(game_data, direction, game_tick):
     return game_data, direction
 
 
-def game_update(game_data, direction, game_tick):
+def game_update(game_data, direction):
     """
     Update the game.
 
@@ -185,7 +188,7 @@ def game_update(game_data, direction, game_tick):
     game_data: Data structure containing most of the information about the game. (dict)
     direction: Direction in witch way the invader array is going 1 or -1,
                 if set -1 the direction will be reversed (int)
-    game_tick: Number of tick elapsed this second, 1 tick = 16ms, 60 tick = 1s (int)
+
     Return:
     -------
     game_data: Updated data structure containing most of the information about the game. (dict)
@@ -195,19 +198,19 @@ def game_update(game_data, direction, game_tick):
     """
 
     # Add one tick to the tick counter and reset at 0 if reach 60.
-    if game_tick == 60:
-        game_tick = 0
+    if game_data["tick"]["game"] == 60:
+        game_data["tick"]["game"] = 0
 
-    game_tick += 1
+    game_data["tick"]["game"] += 1
 
     # Get keyboard input and update the player.
-    game_data = keyboard_input(game_data, game_tick)
+    game_data = keyboard_input(game_data)
 
     # Update lasers and invaders.
     game_data = laser_hit(game_data)
-    game_data, direction = update_invader(game_data, direction, game_tick)
+    game_data, direction = update_invader(game_data, direction)
 
     # Check if the game is finished.
     running = check_end_game(game_data["invader"]["coordinate"], game_data["player"])
 
-    return game_data, direction, running, game_tick
+    return game_data, direction, running
