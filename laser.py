@@ -176,7 +176,7 @@ def player_laser_hit(player_laser_list, invader_list, defence_list, score):
         row = invader_deleted_info[0]
         sub_row = invader_list[row].index(invader_deleted_info[1])
         position = invader_deleted_info[2]
-        invader_list[row][sub_row].pop(invader_list[row][sub_row].index(position)
+        invader_list[row][sub_row].pop(invader_list[row][sub_row].index(position))
 
     return score
 

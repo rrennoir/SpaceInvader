@@ -40,8 +40,8 @@ def invader():
                     x_pos += 25
 
                 invader_data[row_name].append(invader_row)
-                y_pos += 25 # Change row
-                x_pos = 15 # Reset to the left of the screen
+                y_pos += 25  # Change row
+                x_pos = 15  # Reset to the left of the screen
 
     return invader_data
 
@@ -77,7 +77,6 @@ def draw(screen, game_data):
             for invader_position in invader_row:
                 invader_rect = pg.Rect(invader_position, (15, 15))
                 pg.draw.ellipse(screen, rgb["yellow"], invader_rect)
-
 
     # Draw the player lasers.
     for player_laser_position in game_data["player"]["lasers"]:
@@ -123,7 +122,7 @@ def game(screen, clock, font_title, font):
 
     Return:
     -------
-    resulte: resulte of the game win or lost (str)
+    result: result of the game win or lost (str)
     """
 
     # Setup game_data.
@@ -144,18 +143,18 @@ def game(screen, clock, font_title, font):
 
     font_color = (255, 255, 255)
 
-    runnning = True
-    while runnning:
+    running = True
+    while running:
 
         # Clear the screen from previous frame.
         screen.fill((0, 0, 0))
 
-        # Quit the game if the quit boutton is pressed.
+        # Quit the game if the quit button is pressed.
         keys = pg.key.get_pressed()
         for event in pg.event.get():
 
             if event.type == pg.QUIT:
-                runnning = False
+                running = False
                 quit()
 
         # Pause the game is ESCAPE is pressed.
@@ -163,14 +162,15 @@ def game(screen, clock, font_title, font):
             pause(screen, font_title, font, font_color)
 
         # Game Update.
-        game_data, direction, runnning, game_tick = game_update(game_data, direction, game_tick)
+        game_data, direction, running, game_tick = game_update(game_data, direction, game_tick)
 
         # Unpack variable from game_data for easier reading.
         player_life = game_data["player"]["life"]
         score = game_data["score"]
 
         # UI update.
-        ui_text_to_print = "Life: {}    Score: {}    FPS: {}    WIP".format(player_life, score, int(clock.get_fps()))
+        ui_text = "Life: {}    Score: {}    FPS: {}    WIP"
+        ui_text_to_print = ui_text.format(player_life, score, int(clock.get_fps()))
         blit_text(screen, ui_text_to_print, (0, 0), font, font_color)
 
         # Game Drawn.
