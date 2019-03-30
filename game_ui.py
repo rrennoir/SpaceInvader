@@ -132,3 +132,20 @@ def pause(screen, font_title, font, font_color):
 
         if keys[pg.K_SPACE]:
             paused = False
+
+
+def hud(screen, clock, font, life, score):
+    """
+    Display information for the player in game.
+
+    Parameters:
+    -----------
+    screen: (Surface)
+    clock: An object to help track time (Clock)
+    font: (dict)
+    life: (int)
+    score: (int)
+    """
+    ui_text = "Life: {}    Score: {}    FPS: {}    WIP"
+    ui_text_to_print = ui_text.format(life, score, int(clock.get_fps()))
+    blit_text(screen, ui_text_to_print, (0, 0), font["basic"], font["color_white"])

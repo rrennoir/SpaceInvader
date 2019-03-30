@@ -5,8 +5,7 @@ import pygame as pg
 
 from init_data import setup_data
 from game_update import game_update
-from blit_text import blit_text
-from game_menu import intro, outro, pause
+from game_ui import intro, outro, pause, hud
 
 
 def draw(screen, game_data):
@@ -106,14 +105,8 @@ def game(screen, clock, font):
         # Game Update.
         game_data, running = game_update(game_data)
 
-        # Unpack variable from game_data for easier reading.
-        player_life = game_data["player"]["life"]
-        score = game_data["score"]
-
         # UI update.
-        ui_text = "Life: {}    Score: {}    FPS: {}    WIP"
-        ui_text_to_print = ui_text.format(player_life, score, int(clock.get_fps()))
-        blit_text(screen, ui_text_to_print, (0, 0), font["basic"], font["color_white"])
+        hud(screen, clock, font, game_data["player"]["life"], game_data["score"])
 
         # Game Drawn.
         draw(screen, game_data)
@@ -126,7 +119,7 @@ def game(screen, clock, font):
         clock.tick(60)
 
     # Check If game win or lost.
-    if player_life > 0:
+    if game_data["player"]["life"] > 0:
         return "Game Win"
 
     return "Game Lost"
