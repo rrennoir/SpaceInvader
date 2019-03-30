@@ -74,7 +74,7 @@ def invader():
                 invader_row.append(invader_position)
                 invader_row_rect.append(invader_rect)
 
-                # Move 25 pixel to the right.
+                # Move 25 pixels to the right.
                 x_pos += 25
 
             # Add to rows to the data structure.
@@ -92,7 +92,7 @@ def invader():
 
 def defence(screen_height):
     """
-    initialize the defences datastructure.
+    Initialize the defences datastructure.
 
     Parameters:
     -----------
@@ -103,6 +103,7 @@ def defence(screen_height):
     defence_list: List of dictionnary containing all defences data (list)
     """
 
+    # Setup the defences coordinate, list and size.
     defence_coordinate = [
         (50, screen_height - 80),
         (60, screen_height - 80),
@@ -119,6 +120,8 @@ def defence(screen_height):
     defence_size = (10, 10)
     defence_list = []
 
+    # For each defence create a rect, who will be used in 
+    # the collision system and store his life stat.
     for _defence in defence_coordinate:
 
         defence_rect = Rect(_defence, defence_size)
@@ -141,9 +144,12 @@ def player(screen_height):
     -------
     player_data: Player information (dict)
     """
+
+    # Setup player coordinate and rect.
     player_coordinate = [140, screen_height - 30]
     player_rect = Rect(player_coordinate[0], player_coordinate[1] - 15, 20, 15)
 
+    # Create player data.
     player_data = {
         "life": 3,
         "coordinate": player_coordinate,
@@ -166,6 +172,7 @@ def setup_data(screen_height):
     game_data: Data sturcture containing all informations needed for the game (dict)
     """
 
+    # Create game data.
     game_data = {
         "player": player(screen_height),
 
