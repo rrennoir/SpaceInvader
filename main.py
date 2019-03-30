@@ -17,33 +17,76 @@ def invader():
     invader_data: list of coordinate (list)
     """
 
-    # Create invader data structur.²
-    invader_data = {
+    # Create invader data structur.
+    invader_data_structure = {
+        "coordinate": {},
+        "rect": {},
+        "lasers": []}
+
+    invader_data_structure["coordinate"] = {
         "mysterySpaceShip": [],
         "topRow": [],
         "middleRow": [],
         "bottomRow": []}
 
+    invader_data_structure["rect"] = {
+        "mysterySpaceShip": [],
+        "topRow": [],
+        "middleRow": [],
+        "bottomRow": []}
+
+    invader_size = (15, 15)
     x_pos = 15
     y_pos = 50
 
-    for row_name in invader_data:
+    for row_name in invader_data_structure["coordinate"]:
 
         if row_name != "mysterySpaceShip":
             for _row in range(2):
 
                 invader_row = []
+                invader_row_rect = []
                 for _invader in range(11):
 
                     invader_position = [x_pos, y_pos]
+                    invader_rect = pg.Rect(invader_position, invader_size)
+
                     invader_row.append(invader_position)
+                    invader_row_rect.append(invader_rect)
                     x_pos += 25
 
-                invader_data[row_name].append(invader_row)
+                invader_data_structure["coordinate"][row_name].append(invader_row)
+                invader_data_structure["rect"][row_name].append(invader_row_rect)
                 y_pos += 25  # Change row
                 x_pos = 15  # Reset to the left of the screen
 
-    return invader_data
+    return invader_data_structure
+
+
+def defence(defence_coordinate):
+    """
+    initialize the defences datastructure.
+
+    Parameters:
+    -----------
+    defence_coordinate: List of defences coordinate (list)
+
+    Return:
+    -------
+    defence_list: List of dictionnary containing all defences data (list)
+    """
+
+    defence_size = (10, 10)
+    defence_list = []
+
+    for _defence in defence_coordinate:
+
+        defence_rect = pg.Rect(_defence, defence_size)
+        defence_info = {"rect": defence_rect, "life": 3}
+
+        defence_list.append(defence_info)
+
+    return defence_list
 
 
 def draw(screen, game_data):
@@ -71,35 +114,31 @@ def draw(screen, game_data):
         (150, 0, 150))
 
     # Draw _invader.
-    invader_coord = game_data["invader"]["coordinate"]
+    invader_coord = game_data["invader"]["rect"]
     for row_name in invader_coord:
         for invader_row in invader_coord[row_name]:
-            for invader_position in invader_row:
-                invader_rect = pg.Rect(invader_position, (15, 15))
+            for invader_rect in invader_row:
                 pg.draw.ellipse(screen, rgb["yellow"], invader_rect)
 
     # Draw the player lasers.
-    for player_laser_position in game_data["player"]["lasers"]:
-        player_laser_rect = pg.Rect(player_laser_position, (2, 7))
+    for player_laser_rect in game_data["player"]["lasers"]:
         pg.draw.rect(screen, rgb["blue"], player_laser_rect)
 
     # Draw the _invader lasers.
-    for invader_laser_position in game_data["invader"]["lasers"]:
-        invader_laser_rect = pg.Rect(invader_laser_position, (2, 7))
+    for invader_laser_rect in game_data["invader"]["lasers"]:
         pg.draw.rect(screen, rgb["green"], invader_laser_rect)
 
     # Draw defences.
     for defences in game_data["defence"]:
 
         if defences["life"] > 0:
-            defences_rect = pg.Rect(defences["coordinate"], (10, 10))
-            pg.draw.rect(screen, color_defence[defences["life"] - 1], defences_rect)
+            pg.draw.rect(screen, color_defence[defences["life"] - 1], defences["rect"])
 
     # Draw player.
+    # Triangle coordinate.
     player_pos_x = game_data["player"]["coordinate"][0]
     player_pos_y = game_data["player"]["coordinate"][1]
 
-    # Triangle coordinate.
     triangle_coordinate = (
         (player_pos_x, player_pos_y),
         (player_pos_x + 10, player_pos_y - 15),
@@ -115,7 +154,6 @@ def game(screen, clock, font_title, font):
     Parameters:
     -----------
     screen: Surface of the window (surface)
-    background: Surface of the screen (surface)
     clock: Object who track time (clock)
     font_title: Font used to print text title on surface (font)
     font: Font used to print text on surface (font)
@@ -127,34 +165,44 @@ def game(screen, clock, font_title, font):
 
     # Setup game_data.
     direction = 1
-    game_tick = 0
-    shoot_tick = 0
 
     screen_height = screen.get_height()
 
+    defence_coordinate = [
+        (50, screen_height - 80),
+        (60, screen_height - 80),
+        (70, screen_height - 80),
+
+        (125, screen_height - 80),
+        (135, screen_height - 80),
+        (145, screen_height - 80),
+
+        (200, screen_height - 80),
+        (210, screen_height - 80),
+        (220, screen_height - 80)]
+
+    player_coordinate = [140, screen_height - 30]
+    player_rect = pg.Rect(player_coordinate[0], player_coordinate[1] - 15, 20, 15)
+
     game_data = {
-        "player": {"life": 3, "coordinate": [140, screen_height - 30], "lasers": []},
+        "player": {
+            "life": 3,
+            "coordinate": player_coordinate,
+            "rect": player_rect,
+            "lasers": []},
 
-        "invader":  {"coordinate": invader(), "lasers": []},
+        "invader":  invader(),
 
-        "defence": [
-            {"coordinate": (50, screen_height - 80), "life": 3},
-            {"coordinate": (60, screen_height - 80), "life": 3},
-            {"coordinate": (70, screen_height - 80), "life": 3},
-
-            {"coordinate": (125, screen_height - 80), "life": 3},
-            {"coordinate": (135, screen_height - 80), "life": 3},
-            {"coordinate": (145, screen_height - 80), "life": 3},
-
-            {"coordinate": (200, screen_height - 80), "life": 3},
-            {"coordinate": (210, screen_height - 80), "life": 3},
-            {"coordinate": (220, screen_height - 80), "life": 3}],
+        "defence": defence(defence_coordinate),
 
         "score": 0,
 
         "direction": 1,
 
-        "tick": {"game": 0, "moving": 0, "shooting": 0}}
+        "tick": {
+            "game": 0,
+            "moving": 0,
+            "shooting": 0}}
 
     font_color = (255, 255, 255)
 
@@ -200,7 +248,6 @@ def game(screen, clock, font_title, font):
 
     # Check If game win or lost.
     if player_life > 0:
-        print(player_life)
         return "Game Win"
 
     return "Game Lost"

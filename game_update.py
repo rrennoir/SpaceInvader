@@ -19,33 +19,37 @@ def keyboard_input(game_data):
     game_data: Updated data structure containing most of the information about the game. (dict)
     """
 
-    player_pos = game_data["player"]["coordinate"]
+    player_coord = game_data["player"]["coordinate"]
     player_laser = game_data["player"]["lasers"]
 
     keys = pg.key.get_pressed()
 
     # Check if LEFT or RIGHT arrow key is pressed and allow only 10 update per second.
-    if keys[pg.K_LEFT]:
+    if keys[pg.K_LEFT] and player_coord[0] >= 2:
 
-        player_pos[0] -= 2
-        if player_pos[0] <= 0:
+        player_coord[0] -= 2
+        new_rect = game_data["player"]["rect"].move(-2, 0)
+        game_data["player"]["rect"] = new_rect
 
-            player_pos[0] = 0
+    elif keys[pg.K_RIGHT] and player_coord[0] <= 280:
 
-    elif keys[pg.K_RIGHT]:
+        player_coord[0] += 2
+        new_rect = game_data["player"]["rect"].move(2, 0)
+        game_data["player"]["rect"] = new_rect
 
-        player_pos[0] += 2
-        if player_pos[0] >= 280:
-
-            player_pos[0] = 280
 
     # Check if SPACE is pressed and allow only 1 update per second (so 1 shoot/s).
     if keys[pg.K_SPACE] and (game_data["tick"]["shooting"] == 0):
 
-        player_laser.append([player_pos[0] + 10, player_pos[1] - 15])
+        player_laser_position = [player_coord[0] + 10, player_coord[1] - 15]
+        player_laser_rect = pg.Rect(player_laser_position, (2, 7))
+
+        player_laser.append(player_laser_rect)
+
         game_data["tick"]["shooting"] = 60
 
     elif game_data["tick"]["shooting"] > 0:
+
         game_data["tick"]["shooting"] -= 1
 
     # Cheat mode.
@@ -144,8 +148,8 @@ def update_invader(game_data, direction):
 
     # Unpack varaible for easier reading.
     invader_list = game_data["invader"]["coordinate"]
-    invader_laser = game_data["invader"]["lasers"]
-    player_laser = game_data["player"]["lasers"]
+    invader_lasers = game_data["invader"]["lasers"]
+    player_lasers = game_data["player"]["lasers"]
 
     # update _invader position every second aka every 60 frames.
     if game_data["tick"]["game"] == 60:
@@ -161,20 +165,29 @@ def update_invader(game_data, direction):
             for sub_row in invader_list[row]:
                 for _invader in sub_row:
 
-                    _invader[0] = _invader[0] + (10 * direction_new)
-                    _invader[1] = _invader[1] + shift_down
+                    _invader[0] += (10 * direction_new)
+                    _invader[1] += shift_down
+
+                    sub_row_index = invader_list[row].index(sub_row)
+                    invader_index = sub_row.index(_invader)
+                    new_rect = game_data["invader"]["rect"][row][sub_row_index][invader_index].move(10 * direction_new, shift_down)
+                    game_data["invader"]["rect"][row][sub_row_index][invader_index] = new_rect
 
         player_pos_x = game_data["player"]["coordinate"][0]
-        invader_laser = invader_shoot(invader_list, invader_laser, player_pos_x)
+        invader_laser = invader_shoot(invader_list, invader_lasers, player_pos_x)
 
         direction = direction_new
 
     # Update laser position by 2 pixel every frame.
-    for laser in player_laser:
-        laser[1] -= 2
+    for player_laser in player_lasers:
+        new_rect = player_laser.move(0, -2)
+        list_index = player_lasers.index(player_laser)
+        player_lasers[list_index] = new_rect
 
-    for _laser in invader_laser:
-        _laser[1] += 2
+    for invader_laser in invader_lasers:
+        new_rect = invader_laser.move(0, 2)
+        list_index = invader_lasers.index(invader_laser)
+        invader_lasers[list_index] = new_rect
 
     return game_data, direction
 
