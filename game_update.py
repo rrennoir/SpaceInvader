@@ -158,7 +158,7 @@ def update_invader(game_data, direction):
 
         # If direction change, shift down
         if direction != direction_new:
-            shift_down = 10
+            shift_down = 7
 
         # Update _invader position.
         for row in invader_list:
@@ -192,21 +192,17 @@ def update_invader(game_data, direction):
     return game_data, direction
 
 
-def game_update(game_data, direction):
+def game_update(game_data):
     """
     Update the game.
 
     Parameters:
     -----------
     game_data: Data structure containing most of the information about the game. (dict)
-    direction: Direction in witch way the invader array is going 1 or -1,
-                if set -1 the direction will be reversed (int)
 
     Return:
     -------
     game_data: Updated data structure containing most of the information about the game. (dict)
-    direction: Updated direction in witch way the invader array is going 1 or -1,
-                if set -1 the direction will be reversed (int)
     running: If the game is finished (bool)
     """
 
@@ -221,9 +217,10 @@ def game_update(game_data, direction):
 
     # Update lasers and invaders.
     game_data = laser_hit(game_data)
-    game_data, direction = update_invader(game_data, direction)
+    game_data, direction = update_invader(game_data, game_data["direction"])
+    game_data["direction"] = direction
 
     # Check if the game is finished.
     running = check_end_game(game_data["invader"]["coordinate"], game_data["player"])
 
-    return game_data, direction, running
+    return game_data, running

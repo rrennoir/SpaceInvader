@@ -3,90 +3,10 @@ Little Space Invader game just for fun ;)
 """
 import pygame as pg
 
+from init_data import setup_data
 from game_update import game_update
 from blit_text import blit_text
 from game_menu import intro, outro, pause
-
-
-def invader():
-    """
-    Setup all invader position into a list of coordinate.
-
-    Return:
-    -------
-    invader_data: list of coordinate (list)
-    """
-
-    # Create invader data structur.
-    invader_data_structure = {
-        "coordinate": {},
-        "rect": {},
-        "lasers": []}
-
-    invader_data_structure["coordinate"] = {
-        "mysterySpaceShip": [],
-        "topRow": [],
-        "middleRow": [],
-        "bottomRow": []}
-
-    invader_data_structure["rect"] = {
-        "mysterySpaceShip": [],
-        "topRow": [],
-        "middleRow": [],
-        "bottomRow": []}
-
-    invader_size = (15, 15)
-    x_pos = 15
-    y_pos = 50
-
-    for row_name in invader_data_structure["coordinate"]:
-
-        if row_name != "mysterySpaceShip":
-            for _row in range(2):
-
-                invader_row = []
-                invader_row_rect = []
-                for _invader in range(11):
-
-                    invader_position = [x_pos, y_pos]
-                    invader_rect = pg.Rect(invader_position, invader_size)
-
-                    invader_row.append(invader_position)
-                    invader_row_rect.append(invader_rect)
-                    x_pos += 25
-
-                invader_data_structure["coordinate"][row_name].append(invader_row)
-                invader_data_structure["rect"][row_name].append(invader_row_rect)
-                y_pos += 25  # Change row
-                x_pos = 15  # Reset to the left of the screen
-
-    return invader_data_structure
-
-
-def defence(defence_coordinate):
-    """
-    initialize the defences datastructure.
-
-    Parameters:
-    -----------
-    defence_coordinate: List of defences coordinate (list)
-
-    Return:
-    -------
-    defence_list: List of dictionnary containing all defences data (list)
-    """
-
-    defence_size = (10, 10)
-    defence_list = []
-
-    for _defence in defence_coordinate:
-
-        defence_rect = pg.Rect(_defence, defence_size)
-        defence_info = {"rect": defence_rect, "life": 3}
-
-        defence_list.append(defence_info)
-
-    return defence_list
 
 
 def draw(screen, game_data):
@@ -147,7 +67,7 @@ def draw(screen, game_data):
     pg.draw.polygon(screen, rgb["red"], triangle_coordinate)
 
 
-def game(screen, clock, font_title, font):
+def game(screen, clock, font):
     """
     Function with the game loop.
 
@@ -155,8 +75,7 @@ def game(screen, clock, font_title, font):
     -----------
     screen: Surface of the window (surface)
     clock: Object who track time (clock)
-    font_title: Font used to print text title on surface (font)
-    font: Font used to print text on surface (font)
+    font: Dictionnary with differente font and color (dict)
 
     Return:
     -------
@@ -164,47 +83,7 @@ def game(screen, clock, font_title, font):
     """
 
     # Setup game_data.
-    direction = 1
-
-    screen_height = screen.get_height()
-
-    defence_coordinate = [
-        (50, screen_height - 80),
-        (60, screen_height - 80),
-        (70, screen_height - 80),
-
-        (125, screen_height - 80),
-        (135, screen_height - 80),
-        (145, screen_height - 80),
-
-        (200, screen_height - 80),
-        (210, screen_height - 80),
-        (220, screen_height - 80)]
-
-    player_coordinate = [140, screen_height - 30]
-    player_rect = pg.Rect(player_coordinate[0], player_coordinate[1] - 15, 20, 15)
-
-    game_data = {
-        "player": {
-            "life": 3,
-            "coordinate": player_coordinate,
-            "rect": player_rect,
-            "lasers": []},
-
-        "invader":  invader(),
-
-        "defence": defence(defence_coordinate),
-
-        "score": 0,
-
-        "direction": 1,
-
-        "tick": {
-            "game": 0,
-            "moving": 0,
-            "shooting": 0}}
-
-    font_color = (255, 255, 255)
+    game_data = setup_data(screen.get_height())
 
     running = True
     while running:
@@ -222,10 +101,10 @@ def game(screen, clock, font_title, font):
 
         # Pause the game is ESCAPE is pressed.
         if keys[pg.K_ESCAPE]:
-            pause(screen, font_title, font, font_color)
+            pause(screen, font["title"], font["basic"], font["color_white"])
 
         # Game Update.
-        game_data, direction, running = game_update(game_data, direction)
+        game_data, running = game_update(game_data)
 
         # Unpack variable from game_data for easier reading.
         player_life = game_data["player"]["life"]
@@ -234,7 +113,7 @@ def game(screen, clock, font_title, font):
         # UI update.
         ui_text = "Life: {}    Score: {}    FPS: {}    WIP"
         ui_text_to_print = ui_text.format(player_life, score, int(clock.get_fps()))
-        blit_text(screen, ui_text_to_print, (0, 0), font, font_color)
+        blit_text(screen, ui_text_to_print, (0, 0), font["basic"], font["color_white"])
 
         # Game Drawn.
         draw(screen, game_data)
@@ -263,9 +142,12 @@ def main():
     pg.init()
 
     # Setup the font.
-    font_basic = pg.font.SysFont("Comic Sans MS", 15)
-    font_title = pg.font.SysFont("Comic Sans MS", 30)
-    font_color = (255, 255, 255)
+    font = {
+        "basic": pg.font.SysFont("Comic Sans MS", 15),
+        "title": pg.font.SysFont("Comic Sans MS", 30),
+        "color_white": (255, 255, 255)
+    }
+
 
     # Setup window of 300 by 400 pixel.
     display_size = [300, 400]
@@ -277,18 +159,18 @@ def main():
     clock = pg.time.Clock()
 
     # Start intro screen and wait for player.
-    intro(screen, font_title, font_basic, font_color)
+    intro(screen, font["title"], font["basic"], font["color_white"])
 
     # Game.
     play = True
     while play:
 
         # Game logic
-        result = game(screen, clock, font_title, font_basic)
+        result = game(screen, clock, font)
 
         # Game terminated draw outro screen
         # and wait for player input to continue or stop.
-        outro(result, screen, font_title, font_basic, font_color)
+        outro(result, screen, font["title"], font["basic"], font["color_white"])
 
 
 if __name__ == "__main__":
