@@ -83,7 +83,6 @@ def game(screen, clock, font):
 
     # Setup game_data.
     game_data = setup_data(screen.get_height())
-
     running = True
     while running:
 

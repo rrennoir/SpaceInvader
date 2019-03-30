@@ -19,6 +19,9 @@ def invader():
         "rect": {},
         "lasers": []}
 
+    # Create 2 data structure, one for the position and one for the rect
+    # used in the collision systeme using pygame found in the laser module.
+    # Could store position and rect in one list but may complexifie even more the program.
     invader_data_structure["coordinate"] = {
         "mysterySpaceShip": [],
         "topRow": [],
@@ -32,29 +35,57 @@ def invader():
         "bottomRow": []}
 
     invader_size = (15, 15)
+
+    # Setup starting position for the x and y.
     x_pos = 15
     y_pos = 50
 
     for row_name in invader_data_structure["coordinate"]:
 
-        if row_name != "mysterySpaceShip":
-            for _row in range(2):
+        # No row to create for mystery space ship,
+        # only one for the top row, 2 other wise
+        if row_name == "mysterySpaceShip":
+            nb_row = 0
 
-                invader_row = []
-                invader_row_rect = []
-                for _invader in range(11):
+        elif row_name == "topRow":
+            nb_row = 1
 
-                    invader_position = [x_pos, y_pos]
-                    invader_rect = Rect(invader_position, invader_size)
+        else:
+            nb_row = 2
 
-                    invader_row.append(invader_position)
-                    invader_row_rect.append(invader_rect)
-                    x_pos += 25
+        # Based on the row name (top, middle or bottom) there is 1 or 2 row containing 11 column.
+        # So 1 row for top, 2 for middle and bottom each, 5 in total.
+        # One row contain 11 invaders separeted by 25 pixel on the
+        # X axis (from one invader left side to the next invader left side NOT the center).
+        # For the Y axis the invaders are separeted by 15 pixel (from one
+        # invader top to the next invader top NOT the center)
+        for _row in range(nb_row):
 
-                invader_data_structure["coordinate"][row_name].append(invader_row)
-                invader_data_structure["rect"][row_name].append(invader_row_rect)
-                y_pos += 25  # Change row
-                x_pos = 15  # Reset to the left of the screen
+            invader_row = []
+            invader_row_rect = []
+
+            for _invader in range(11):
+
+                # Create the invader coordinate and rect.
+                invader_position = [x_pos, y_pos]
+                invader_rect = Rect(invader_position, invader_size)
+
+                # Add them to the list.
+                invader_row.append(invader_position)
+                invader_row_rect.append(invader_rect)
+
+                # Move 25 pixel to the right.
+                x_pos += 25
+
+            # Add to rows to the data structure.
+            invader_data_structure["coordinate"][row_name].append(invader_row)
+            invader_data_structure["rect"][row_name].append(invader_row_rect)
+
+            # Change row.
+            y_pos += 25
+
+            # Reset to the left of the screen.
+            x_pos = 15
 
     return invader_data_structure
 
@@ -96,6 +127,7 @@ def defence(screen_height):
         defence_list.append(defence_info)
 
     return defence_list
+
 
 def player(screen_height):
     """
