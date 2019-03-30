@@ -14,10 +14,10 @@ def draw(screen, game_data):
 
     Parameters:
     -----------
-    screen: surface of the window (surface)
-    dataInvader: coordinate of the invaders (list)
+    screen: Surface of the window (surface)
+    dataInvader: Coordinate of the invaders (list)
     player: information about the player (list)
-    invader_laser: coordinate of the lasers shoot by the invaders (list)
+    invader_laser: Coordinate of the lasers shoot by the invaders (list)
     """
 
     # RGB colors.
@@ -78,7 +78,7 @@ def game(screen, clock, font):
 
     Return:
     -------
-    result: result of the game win or lost (str)
+    result: Result of the game win or lost (str)
     """
 
     # Setup game_data.

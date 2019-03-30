@@ -6,11 +6,11 @@ from pygame import Rect
 
 def invader():
     """
-    Setup all invader position into a list of coordinate.
+    Create the dictionnay with all invader information.
 
     Return:
     -------
-    invader_data: list of coordinate (list)
+    invader_data: Dictionnary with invader information (dict)
     """
 
     # Create invader data structur.
@@ -65,7 +65,7 @@ def defence(screen_height):
 
     Parameters:
     -----------
-    screen_height: height of the screen (int)
+    screen_height: Height of the screen (int)
 
     Return:
     -------
@@ -100,13 +100,14 @@ def defence(screen_height):
 def player(screen_height):
     """
     Create player data.
+
     Parameters:
     -----------
-    screen_height: (int)
+    screen_height: Height of the screen (int)
 
     Return:
     -------
-    player_data: (dict)
+    player_data: Player information (dict)
     """
     player_coordinate = [140, screen_height - 30]
     player_rect = Rect(player_coordinate[0], player_coordinate[1] - 15, 20, 15)

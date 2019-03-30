@@ -11,13 +11,13 @@ def invader_shoot(invader_list, invader_laser, player_pos_x):
 
     Parameters:
     -----------
-    invader_list: (dict)
-    invader_laser: (list)
-    player_pos: (int)
+    invader_list: Dictionnary with invader coordinate (dict)
+    invader_laser: List of laser position shoot by the invaders (list)
+    player_pos_x: Position of the player on the X axis (int)
 
     Return:
     -------
-    invader_laser: (list)
+    invader_laser: List of laser position shoot by the invaders (list)
     """
 
     first_invader_list = {}
@@ -54,9 +54,9 @@ def invader_laser_hit(player, invader_laser_list, defence_list):
 
     Parameters:
     -----------
-    player: (dict)
-    invader_laser_list: (list)
-    defence_list: (list)
+    player: Player information (dict)
+    invader_laser_list: List of laser position shoot by the invaders (list)
+    defence_list: List of dictionnary defences (list)
     """
 
     invader_laser_to_delete = []
@@ -99,7 +99,8 @@ def player_laser_hit(player_laser_list, invader_coord_list, invader_rect_list, d
     Parameters:
     -----------
     player_laser_list: List of laser position shoot by the player (list)
-    invader_coord_list: List of invader position (list)
+    invader_coord_list: Dictionnary of invader position (dict)
+    invader_rect_list: Dictionnary of invader rect (dict)
     defence_list: List of dictionnary defences (list)
     score: Score of the player (int)
 

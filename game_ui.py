@@ -6,7 +6,7 @@ from blit_text import blit_text
 
 def intro(screen, font_title, font_text, font_color):
     """
-    Intro screen
+    Intro screen.
 
     Parameters:
     -----------
@@ -53,7 +53,7 @@ def outro(result, screen, font_title_result, font, font_color):
     result: Result of the game (str)
     screen: Surface of the window (surface)
     font: Font used for the text (font)
-    font_color: (tuple or list)
+    font_color: Color used for the text (tuple or list)
     """
     # Make the screen black to clear the screen.
     screen.fill((0, 0, 0))
@@ -140,11 +140,11 @@ def hud(screen, clock, font, life, score):
 
     Parameters:
     -----------
-    screen: (Surface)
+    screen: Surface of the window(Surface)
     clock: An object to help track time (Clock)
-    font: (dict)
-    life: (int)
-    score: (int)
+    font: Dictionnary with differente font and color (dict)
+    life: Life of the player (int)
+    score: Score of the player (int)
     """
     ui_text = "Life: {}    Score: {}    FPS: {}    WIP"
     ui_text_to_print = ui_text.format(life, score, int(clock.get_fps()))

@@ -71,12 +71,12 @@ def check_end_game(invader_data, player):
 
     Parameters:
     -----------
-    invader_data: coordinate of the invaders (list)
+    invader_data: Coordinate of the invaders (dict)
     player: Information about the player (dict)
 
     return:
     -------
-    Result: if the game is finished retrun false, true otherwise.
+    Result: If the game is finished retrun false, true otherwise.
     """
 
     empty = True
@@ -103,7 +103,7 @@ def change_direction(invader_data, direction):
 
     Parameters:
     -----------
-    invader_data: coordinate of the invaders (list)
+    invader_data: Coordinate of the invaders (list)
     direction: Direction in witch way the invader array is going 1 or -1,
                 if set -1 the direction will be reversed (int)
 
