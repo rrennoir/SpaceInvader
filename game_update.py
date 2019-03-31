@@ -83,13 +83,15 @@ def check_end_game(invader_data, player):
 
     for row in invader_data:
 
-        if invader_data[row] != [[], []] and row != "mysterySpaceShip":
-            empty = False
-
         for sub_row in invader_data[row]:
-            for invader_pos in sub_row:
-                if invader_pos[0] + 15 >= 400:
-                    return False
+
+            if sub_row != [] and row != "mysterySpaceShip":
+                empty = False
+
+                for invader_pos in sub_row:
+
+                    if invader_pos[0] + 15 >= 400:
+                        return False
 
     if empty or player["life"] <= 0:
         return False

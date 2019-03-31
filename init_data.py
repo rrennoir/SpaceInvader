@@ -106,16 +106,22 @@ def defence(screen_height):
     # Setup the defences coordinate, list and size.
     defence_coordinate = [
         (50, screen_height - 80),
+        (50, screen_height - 70),
         (60, screen_height - 80),
         (70, screen_height - 80),
+        (70, screen_height - 70),
 
         (125, screen_height - 80),
+        (125, screen_height - 70),
         (135, screen_height - 80),
         (145, screen_height - 80),
+        (145, screen_height - 70),
 
         (200, screen_height - 80),
+        (200, screen_height - 70),
         (210, screen_height - 80),
-        (220, screen_height - 80)]
+        (220, screen_height - 80),
+        (220, screen_height - 70)]
 
     defence_size = (10, 10)
     defence_list = []
