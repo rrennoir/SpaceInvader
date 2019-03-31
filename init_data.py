@@ -120,7 +120,7 @@ def defence(screen_height):
     defence_size = (10, 10)
     defence_list = []
 
-    # For each defence create a rect, who will be used in 
+    # For each defence create a rect, who will be used in
     # the collision system and store his life stat.
     for _defence in defence_coordinate:
 

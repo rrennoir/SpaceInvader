@@ -46,7 +46,7 @@ def keyboard_input(game_data):
 
         player_laser.append(player_laser_rect)
 
-        game_data["tick"]["shooting"] = 60
+        game_data["tick"]["shooting"] = 45
 
     elif game_data["tick"]["shooting"] > 0:
 
@@ -180,7 +180,7 @@ def update_invader(game_data, direction):
 
     # Update laser position by 2 pixel every frame.
     for player_laser in player_lasers:
-        new_rect = player_laser.move(0, -2)
+        new_rect = player_laser.move(0, -4)
         list_index = player_lasers.index(player_laser)
         player_lasers[list_index] = new_rect
 
