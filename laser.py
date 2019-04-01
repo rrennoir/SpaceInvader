@@ -22,20 +22,21 @@ def invader_shoot(invader_list, invader_laser, player_pos_x):
 
     first_invader_list = {}
     for row in invader_list:
-        for invader_row in invader_list[row]:
-            for invader_pos in invader_row:
+        if row != "mysterySpaceShip":
+            for invader_row in invader_list[row]:
+                for invader_pos in invader_row:
 
-                ref = str(invader_pos[0])
-                if ref in first_invader_list:
+                    ref = str(invader_pos[0])
+                    if ref in first_invader_list:
 
-                    if invader_pos[1] > first_invader_list[ref][1][1]:
-                        first_invader_list[ref][1] = invader_pos
+                        if invader_pos[1] > first_invader_list[ref][1][1]:
+                            first_invader_list[ref][1] = invader_pos
 
-                    if row != first_invader_list[ref][0]:
-                        first_invader_list[ref][0] = row
+                        if row != first_invader_list[ref][0]:
+                            first_invader_list[ref][0] = row
 
-                else:
-                    first_invader_list.update({ref: [row, invader_pos]})
+                    else:
+                        first_invader_list.update({ref: [row, invader_pos]})
 
     for pos in first_invader_list:
         if player_pos_x - 50 < int(pos) < player_pos_x + 50:
@@ -132,21 +133,32 @@ def player_laser_hit(player_laser_list, invader_coord_list, invader_rect_list, d
                         player_laser_to_delete.append(player_laser)
 
             for invader_row in invader_rect_list:
-                for sub_row in invader_rect_list[invader_row]:
-                    for _invader in sub_row:
 
-                        if player_laser.colliderect(_invader):
+                if invader_row != "mysterySpaceShip":
 
-                            if invader_row == "bottomRow":
-                                score += 10
-                            elif invader_row == "middleRow":
-                                score += 20
+                    for sub_row in invader_rect_list[invader_row]:
+                        for _invader in sub_row:
 
-                            elif invader_row == "topRow":
-                                score += 30
+                            if player_laser.colliderect(_invader):
 
-                            player_laser_to_delete.append(player_laser)
-                            invader_to_delete.append([invader_row, sub_row, _invader])
+                                if invader_row == "bottomRow":
+                                    score += 10
+                                elif invader_row == "middleRow":
+                                    score += 20
+
+                                elif invader_row == "topRow":
+                                    score += 30
+
+                                player_laser_to_delete.append(player_laser)
+                                invader_to_delete.append([invader_row, sub_row, _invader])
+                
+                elif invader_rect_list[invader_row] != []:
+                    _invader = invader_rect_list[invader_row][0]
+                    if player_laser.colliderect(_invader):
+                        score += randint(50, 150)
+
+                        player_laser_to_delete.append(player_laser)
+                        invader_to_delete.append([invader_row, 0, _invader])
 
     # Delete player laser who hit.
     for player_laser_deleted in player_laser_to_delete:
@@ -157,12 +169,19 @@ def player_laser_hit(player_laser_list, invader_coord_list, invader_rect_list, d
     for invader_deleted_info in invader_to_delete:
 
         row = invader_deleted_info[0]
-        sub_row = invader_rect_list[row].index(invader_deleted_info[1])
-        position = invader_deleted_info[2]
 
-        index = invader_rect_list[row][sub_row].index(position)
-        invader_rect_list[row][sub_row].pop(index)
-        invader_coord_list[row][sub_row].pop(index)
+        if row != "mysterySpaceShip":
+            sub_row = invader_rect_list[row].index(invader_deleted_info[1])
+            position = invader_deleted_info[2]
+
+            index = invader_rect_list[row][sub_row].index(position)
+            invader_rect_list[row][sub_row].pop(index)
+            invader_coord_list[row][sub_row].pop(index)
+
+        else:
+
+            invader_rect_list[row].pop(0)
+            invader_coord_list[row].pop(0)
 
     return score
 
