@@ -192,6 +192,7 @@ def setup_data(screen_height):
 
         "tick": {
             "game": 0,
+            "mystery": 0,
             "moving": 0,
             "shooting": 0}}
 
