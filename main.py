@@ -35,9 +35,16 @@ def draw(screen, game_data):
     # Draw _invader.
     invader_coord = game_data["invader"]["rect"]
     for row_name in invader_coord:
-        for invader_row in invader_coord[row_name]:
-            for invader_rect in invader_row:
-                pg.draw.ellipse(screen, rgb["yellow"], invader_rect)
+
+        if row_name != "mysterySpaceShip":
+            for invader_row in invader_coord[row_name]:
+
+                for invader_rect in invader_row:
+                    pg.draw.ellipse(screen, rgb["yellow"], invader_rect)
+
+        elif invader_coord[row_name] != []:
+            invader_rect = invader_coord[row_name][0]
+            pg.draw.ellipse(screen, rgb["yellow"], invader_rect)
 
     # Draw the player lasers.
     for player_laser_rect in game_data["player"]["lasers"]:
