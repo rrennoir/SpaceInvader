@@ -1,6 +1,8 @@
 """
 Game update
 """
+from random import randint
+
 import pygame as pg
 
 from laser import laser_hit, invader_shoot
@@ -116,14 +118,15 @@ def change_direction(invader_data, direction):
 
     change = False
     for row in invader_data:
-        for sub_row in invader_data[row]:
-            for _invader in sub_row:
+        if row != "mysterySpaceShip":
+            for sub_row in invader_data[row]:
+                for _invader in sub_row:
 
-                invader_pos_x = _invader[0]
-                if ((invader_pos_x >= 280 and direction == 1)
-                        or (invader_pos_x <= 10 and direction == -1)):
+                    invader_pos_x = _invader[0]
+                    if ((invader_pos_x >= 280 and direction == 1)
+                            or (invader_pos_x <= 10 and direction == -1)):
 
-                    change = True
+                        change = True
 
     if change:
         direction *= -1
@@ -164,16 +167,17 @@ def update_invader(game_data, direction):
 
         # Update _invader position.
         for row in invader_list:
-            for sub_row in invader_list[row]:
-                for _invader in sub_row:
+            if row != "mysterySpaceShip":
+                for sub_row in invader_list[row]:
+                    for _invader in sub_row:
 
-                    _invader[0] += (10 * direction_new)
-                    _invader[1] += shift_down
+                        _invader[0] += (10 * direction_new)
+                        _invader[1] += shift_down
 
-                    sub_row_index = invader_list[row].index(sub_row)
-                    invader_index = sub_row.index(_invader)
-                    new_rect = game_data["invader"]["rect"][row][sub_row_index][invader_index].move(10 * direction_new, shift_down)
-                    game_data["invader"]["rect"][row][sub_row_index][invader_index] = new_rect
+                        sub_row_index = invader_list[row].index(sub_row)
+                        invader_index = sub_row.index(_invader)
+                        new_rect = game_data["invader"]["rect"][row][sub_row_index][invader_index].move(10 * direction_new, shift_down)
+                        game_data["invader"]["rect"][row][sub_row_index][invader_index] = new_rect
 
         player_pos_x = game_data["player"]["coordinate"][0]
         invader_laser = invader_shoot(invader_list, invader_lasers, player_pos_x)
@@ -194,6 +198,47 @@ def update_invader(game_data, direction):
     return game_data, direction
 
 
+def mystery_space_ship(game_data):
+    """
+    Spec ...
+
+    Parameters:
+    -----------
+    game_data: Data structure containing most of the information about the game. (dict)
+
+    Return:
+    -------
+    game_data: Updated data structure containing most of the information about the game. (dict)
+    """
+
+    mystery_s_s_coord = game_data["invader"]["coordinate"]["mysterySpaceShip"]
+    mystery_s_s_rect = game_data["invader"]["rect"]["mysterySpaceShip"]
+    cooldown = game_data["tick"]["mystery"]
+    tick = game_data["tick"]["game"]
+
+    if tick == 0 and cooldown == 0 and mystery_s_s_coord == [] and randint(0, 10) > 9:
+
+        starting_coord = [15, 20]
+
+        mystery_s_s_coord.append(starting_coord)
+        mystery_s_s_rect.append(pg.Rect(starting_coord, (30, 10)))
+
+    elif mystery_s_s_coord != []:
+
+        if mystery_s_s_coord[0][0] > 280:
+            mystery_s_s_coord.pop()
+            mystery_s_s_rect.pop()
+
+            game_data["tick"]["mystery"] = 60
+
+        else:
+            mystery_s_s_coord[0][0] += 2
+            new_rect = mystery_s_s_rect[0].move(2, 0)
+            mystery_s_s_rect[0] = new_rect
+
+    return game_data
+
+
 def game_update(game_data):
     """
     Update the game.
@@ -209,10 +254,10 @@ def game_update(game_data):
     """
 
     # Add one tick to the tick counter and reset at 0 if reach 60.
-    if game_data["tick"]["game"] == 60:
-        game_data["tick"]["game"] = 0
-
     game_data["tick"]["game"] += 1
+
+    if game_data["tick"]["game"] >= 60:
+        game_data["tick"]["game"] = 0
 
     # Get keyboard input and update the player.
     game_data = keyboard_input(game_data)
@@ -221,6 +266,9 @@ def game_update(game_data):
     game_data = laser_hit(game_data)
     game_data, direction = update_invader(game_data, game_data["direction"])
     game_data["direction"] = direction
+
+    # Update the mystery space ship.
+    game_data = mystery_space_ship(game_data)
 
     # Check if the game is finished.
     running = check_end_game(game_data["invader"]["coordinate"], game_data["player"])
