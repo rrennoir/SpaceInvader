@@ -157,7 +157,7 @@ def update_invader(game_data, direction):
     player_lasers = game_data["player"]["lasers"]
 
     # update _invader position every second aka every 60 frames.
-    if game_data["tick"]["game"] == 60:
+    if game_data["tick"]["game"] == 59:
         shift_down = 0
         direction_new = change_direction(invader_list, direction)
 
