@@ -6,71 +6,7 @@ import pygame as pg
 from init_data import setup_data
 from game_update import game_update
 from game_ui import intro, outro, pause, hud
-
-
-def draw(screen, game_data):
-    """
-    Drawn object on the screen, like player, lasers and invaders.
-
-    Parameters:
-    -----------
-    screen: Surface of the window (surface)
-    dataInvader: Coordinate of the invaders (list)
-    player: information about the player (list)
-    invader_laser: Coordinate of the lasers shoot by the invaders (list)
-    """
-
-    # RGB colors.
-    rgb = {
-        "yellow": (255, 255, 0),
-        "red": (255, 0, 0),
-        "blue": (0, 0, 255),
-        "green": (0, 255, 0)}
-
-    color_defence = (
-        (50, 0, 50),
-        (100, 0, 100),
-        (150, 0, 150))
-
-    # Draw _invader.
-    invader_coord = game_data["invader"]["rect"]
-    for row_name in invader_coord:
-
-        if row_name != "mysterySpaceShip":
-            for invader_row in invader_coord[row_name]:
-
-                for invader_rect in invader_row:
-                    pg.draw.ellipse(screen, rgb["yellow"], invader_rect)
-
-        elif invader_coord[row_name] != []:
-            invader_rect = invader_coord[row_name][0]
-            pg.draw.ellipse(screen, rgb["yellow"], invader_rect)
-
-    # Draw the player lasers.
-    for player_laser_rect in game_data["player"]["lasers"]:
-        pg.draw.rect(screen, rgb["blue"], player_laser_rect)
-
-    # Draw the _invader lasers.
-    for invader_laser_rect in game_data["invader"]["lasers"]:
-        pg.draw.rect(screen, rgb["green"], invader_laser_rect)
-
-    # Draw defences.
-    for defences in game_data["defence"]:
-
-        if defences["life"] > 0:
-            pg.draw.rect(screen, color_defence[defences["life"] - 1], defences["rect"])
-
-    # Draw player.
-    # Triangle coordinate.
-    player_pos_x = game_data["player"]["coordinate"][0]
-    player_pos_y = game_data["player"]["coordinate"][1]
-
-    triangle_coordinate = (
-        (player_pos_x, player_pos_y),
-        (player_pos_x + 10, player_pos_y - 15),
-        (player_pos_x + 20, player_pos_y))
-
-    pg.draw.polygon(screen, rgb["red"], triangle_coordinate)
+from draw import draw_on_screen
 
 
 def game(screen, clock, font):
@@ -115,7 +51,7 @@ def game(screen, clock, font):
         hud(screen, clock, font, game_data["player"]["life"], game_data["score"])
 
         # Game Drawn.
-        draw(screen, game_data)
+        draw_on_screen(screen, game_data)
 
         # Display update pygame.
         screen.blit(screen, (0, 0))
