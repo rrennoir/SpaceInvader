@@ -133,6 +133,56 @@ def change_direction(invader_data, direction):
 
     return direction
 
+def update_lasers(invader_lasers, player_lasers):
+    """
+    Spec...
+    """
+
+    # Update player lasers.
+    for player_laser in player_lasers:
+        new_rect = player_laser.move(0, -4)
+        list_index = player_lasers.index(player_laser)
+        player_lasers[list_index] = new_rect
+
+    # Update invaders lasers.
+    for invader_laser in invader_lasers:
+        new_rect = invader_laser.move(0, 2)
+        list_index = invader_lasers.index(invader_laser)
+        invader_lasers[list_index] = new_rect
+
+    return invader_lasers, player_lasers
+
+def move_invader(invader_data, direction, shift_down):
+    """
+    Spec...
+    """
+
+    invader_coord = invader_data["coordinate"]
+    invader_rect = invader_data["rect"]
+
+    velocity = 10
+    if shift_down > 0:
+        velocity = 0
+
+    for row in invader_coord:
+        if row != "mysterySpaceShip":
+
+            for sub_row in invader_coord[row]:
+                for _invader in sub_row:
+
+                    _invader[0] += (velocity * direction)
+                    _invader[1] += shift_down
+
+                    sub_row_index = invader_coord[row].index(sub_row)
+                    invader_index = sub_row.index(_invader)
+
+                    invader_rect_row = invader_rect[row][sub_row_index]
+
+                    new_rect = invader_rect_row[invader_index].move(velocity * direction, shift_down)
+                    invader_rect[row][sub_row_index][invader_index] = new_rect
+
+    return invader_data
+
 
 def update_invader(game_data, direction):
     """
@@ -141,20 +191,15 @@ def update_invader(game_data, direction):
     Parameters:
     -----------
     game_data: Data structure containing most of the information about the game. (dict)
-    direction: Direction in witch way the invader array is going 1 or -1,
-                if set -1 the direction will be reversed (int)
 
     Return:
     -------
     game_data: Data structure containing most of the information about the game. (dict)
-    direction: Direction in witch way the invader array is going 1 or -1,
-                 if set -1 the direction will be reversed (int)
     """
 
     # Unpack varaible for easier reading.
     invader_list = game_data["invader"]["coordinate"]
     invader_lasers = game_data["invader"]["lasers"]
-    player_lasers = game_data["player"]["lasers"]
 
     # update _invader position every second aka every 60 frames.
     if game_data["tick"]["game"] == 59:
@@ -166,36 +211,14 @@ def update_invader(game_data, direction):
             shift_down = 7
 
         # Update _invader position.
-        for row in invader_list:
-            if row != "mysterySpaceShip":
-                for sub_row in invader_list[row]:
-                    for _invader in sub_row:
-
-                        _invader[0] += (10 * direction_new)
-                        _invader[1] += shift_down
-
-                        sub_row_index = invader_list[row].index(sub_row)
-                        invader_index = sub_row.index(_invader)
-                        new_rect = game_data["invader"]["rect"][row][sub_row_index][invader_index].move(10 * direction_new, shift_down)
-                        game_data["invader"]["rect"][row][sub_row_index][invader_index] = new_rect
+        move_invader(game_data["invader"], direction_new, shift_down)
 
         player_pos_x = game_data["player"]["coordinate"][0]
-        invader_laser = invader_shoot(invader_list, invader_lasers, player_pos_x)
+        invader_lasers = invader_shoot(invader_list, invader_lasers, player_pos_x)
 
-        direction = direction_new
+        game_data["direction"] = direction_new
 
-    # Update laser position by 2 pixel every frame.
-    for player_laser in player_lasers:
-        new_rect = player_laser.move(0, -4)
-        list_index = player_lasers.index(player_laser)
-        player_lasers[list_index] = new_rect
-
-    for invader_laser in invader_lasers:
-        new_rect = invader_laser.move(0, 2)
-        list_index = invader_lasers.index(invader_laser)
-        invader_lasers[list_index] = new_rect
-
-    return game_data, direction
+    return game_data
 
 
 def mystery_space_ship(game_data):
@@ -262,10 +285,14 @@ def game_update(game_data):
     # Get keyboard input and update the player.
     game_data = keyboard_input(game_data)
 
-    # Update lasers and invaders.
+    # Update invaders.
     game_data = laser_hit(game_data)
-    game_data, direction = update_invader(game_data, game_data["direction"])
-    game_data["direction"] = direction
+    game_data = update_invader(game_data, game_data["direction"])
+
+    # Update lasers.
+    player_lasers = game_data["player"]["lasers"]
+    invader_lasers = game_data["invader"]["lasers"]
+    invader_lasers, player_lasers = update_lasers(invader_lasers, player_lasers)
 
     # Update the mystery space ship.
     game_data = mystery_space_ship(game_data)
