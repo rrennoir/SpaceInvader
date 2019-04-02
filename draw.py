@@ -8,6 +8,7 @@ def draw_invader(screen, invader_rect, color):
     """
     Spec ...
     """
+
     for row_name in invader_rect:
 
         if row_name != "mysterySpaceShip":
@@ -89,7 +90,7 @@ def draw_on_screen(screen, game_data):
     draw_invader(screen, game_data["invader"]["rect"], color_rgb)
 
     # Draw lasers.
-    draw_lasers(screen, game_data["player"]["lasers"], game_data["invaders"]["lasers"], color_rgb)
+    draw_lasers(screen, game_data["player"]["lasers"], game_data["invader"]["lasers"], color_rgb)
 
     # Draw player.
     draw_player(screen, game_data["player"]["coordinate"], color_rgb)
