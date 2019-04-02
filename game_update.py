@@ -176,9 +176,9 @@ def move_invader(invader_data, direction, shift_down):
                     sub_row_index = invader_coord[row].index(sub_row)
                     invader_index = sub_row.index(_invader)
 
-                    invader_rect_row = invader_rect[row][sub_row_index]
+                    invader_row = invader_rect[row][sub_row_index]
 
-                    new_rect = invader_rect_row[invader_index].move(velocity * direction, shift_down)
+                    new_rect = invader_row[invader_index].move(velocity * direction, shift_down)
                     invader_rect[row][sub_row_index][invader_index] = new_rect
 
     return invader_data
@@ -201,22 +201,20 @@ def update_invader(game_data, direction):
     invader_list = game_data["invader"]["coordinate"]
     invader_lasers = game_data["invader"]["lasers"]
 
-    # update _invader position every second aka every 60 frames.
-    if game_data["tick"]["game"] == 59:
-        shift_down = 0
-        direction_new = change_direction(invader_list, direction)
+    # If direction change, shift down
+    shift_down = 0
+    direction_new = change_direction(invader_list, direction)
 
-        # If direction change, shift down
-        if direction != direction_new:
-            shift_down = 7
+    if direction != direction_new:
+        shift_down = 7
 
-        # Update _invader position.
-        move_invader(game_data["invader"], direction_new, shift_down)
+    # Update _invader position.
+    move_invader(game_data["invader"], direction_new, shift_down)
 
-        player_pos_x = game_data["player"]["coordinate"][0]
-        invader_lasers = invader_shoot(invader_list, invader_lasers, player_pos_x)
+    player_pos_x = game_data["player"]["coordinate"][0]
+    invader_lasers = invader_shoot(invader_list, invader_lasers, player_pos_x)
 
-        game_data["direction"] = direction_new
+    game_data["direction"] = direction_new
 
     return game_data
 
@@ -285,9 +283,12 @@ def game_update(game_data):
     # Get keyboard input and update the player.
     game_data = keyboard_input(game_data)
 
-    # Update invaders.
+    # Check if laser hit.
     game_data = laser_hit(game_data)
-    game_data = update_invader(game_data, game_data["direction"])
+
+    # Update invaders.
+    if game_data["tick"]["game"] == 59:
+        game_data = update_invader(game_data, game_data["direction"])
 
     # Update lasers.
     player_lasers = game_data["player"]["lasers"]
