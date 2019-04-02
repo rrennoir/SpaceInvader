@@ -151,7 +151,7 @@ def player_laser_hit(player_laser_list, invader_coord_list, invader_rect_list, d
 
                                 player_laser_to_delete.append(player_laser)
                                 invader_to_delete.append([invader_row, sub_row, _invader])
-                
+
                 elif invader_rect_list[invader_row] != []:
                     _invader = invader_rect_list[invader_row][0]
                     if player_laser.colliderect(_invader):
