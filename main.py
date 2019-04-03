@@ -38,7 +38,7 @@ def game(screen, clock, font):
 
             if event.type == pg.QUIT:
                 running = False
-                quit()
+                pg.quit()
 
         # Pause the game is ESCAPE is pressed.
         if keys[pg.K_ESCAPE]:
