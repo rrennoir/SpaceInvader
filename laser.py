@@ -2,6 +2,7 @@
 Laser hit systeme.
 """
 from random import randint
+from pygame import Rect
 
 
 def invader_shoot(invader_list, invader_laser, player_pos_x):
@@ -10,39 +11,34 @@ def invader_shoot(invader_list, invader_laser, player_pos_x):
 
     Parameters:
     -----------
-    invader_list: (dict)
-    invader_laser: (list)
-    player_pos: (int)
+    invader_list: Dictionnary with invader coordinate (dict)
+    invader_laser: List of laser position shoot by the invaders (list)
+    player_pos_x: Position of the player on the X axis (int)
 
     Return:
     -------
-    invader_laser: (list)
+    invader_laser: List of laser position shoot by the invaders (list)
     """
 
     first_invader_list = {}
-    for row in invader_list:
-        for invader_row in invader_list[row]:
-            for invader_pos in invader_row:
+    for row_key, row in invader_list.items():
+        if row_key != "mysterySpaceShip":
+            for invader_pos in row:
 
                 ref = str(invader_pos[0])
-                if ref in first_invader_list:
+                if ref in first_invader_list and invader_pos[1] > first_invader_list[ref][1]:
 
-                    if invader_pos[1] > first_invader_list[ref][1][1]:
-                        first_invader_list[ref][1] = invader_pos
-
-                    if row != first_invader_list[ref][0]:
-                        first_invader_list[ref][0] = row
-
+                    first_invader_list[ref] = invader_pos
 
                 else:
-                    first_invader_list.update({ref: [row, invader_pos]})
+                    first_invader_list.update({ref: invader_pos})
 
-    for pos in first_invader_list:
-        if player_pos_x - 50 < int(pos) < player_pos_x + 50:
+    for ref, position in first_invader_list.items():
 
-            if randint(0, 100) > 85:
-                invader_pos = first_invader_list[pos][1]
-                invader_laser.append([invader_pos[0], invader_pos[1]])
+        if player_pos_x - 50 < int(ref) < player_pos_x + 50 and randint(0, 100) > 85:
+
+            invader_laser_rect = Rect(position, (2, 7))
+            invader_laser.append(invader_laser_rect)
 
     return invader_laser
 
@@ -53,62 +49,54 @@ def invader_laser_hit(player, invader_laser_list, defence_list):
 
     Parameters:
     -----------
-    player: (dict)
-    invader_laser_list: (list)
-    defence_list: (list)
+    player: Player information (dict)
+    invader_laser_list: List of laser position shoot by the invaders (list)
+    defence_list: List of dictionnary defences (list)
     """
-
-    player_pos_x = player["coordinate"][0]
-    player_pos_y = player["coordinate"][1]
 
     invader_laser_to_delete = []
 
-    for invader_laser in invader_laser_list:
+    for laser_index, invader_laser in enumerate(invader_laser_list):
 
         # Remove laser out of the screen
         if invader_laser[1] > 400:
 
-            invader_laser_to_delete.append(invader_laser)
+            invader_laser_to_delete.append(laser_index)
 
         # Check if the laser hit something.
         else:
 
-            laser_pos_x = invader_laser[0]
-            laser_pos_y = invader_laser[1]
-
             # Defence.
             for defences in defence_list:
 
-                if defences["life"] > 0:
-                    defences_pos_x = defences["coordinate"][0]
-                    defences_pos_y = defences["coordinate"][1]
+                if (invader_laser not in invader_laser_to_delete and defences["life"] > 0
+                        and defences["rect"].colliderect(invader_laser)):
 
-                    if ((defences_pos_x < laser_pos_x < defences_pos_x + 30)
-                            and (defences_pos_y < laser_pos_y < defences_pos_y + 20)):
-
-                        invader_laser_to_delete.append(invader_laser)
-                        defences["life"] -= 1
+                    invader_laser_to_delete.append(laser_index)
+                    defences["life"] -= 1
 
             # Player.
-            if ((player_pos_x < laser_pos_x + 7 < player_pos_x + 20)
-                    and (player_pos_y < laser_pos_y + 7 < player_pos_y + 15)):
+            if (invader_laser not in invader_laser_to_delete
+                    and player["rect"].colliderect(invader_laser)):
 
-                invader_laser_to_delete.append(invader_laser)
+                invader_laser_to_delete.append(laser_index)
                 player["life"] -= 1
 
     # Delete _invader laser who hit.
-    for invader_laser_deleted in invader_laser_to_delete:
-        invader_laser_list.pop(invader_laser_list.index(invader_laser_deleted))
+    for index_to_del in invader_laser_to_delete:
+
+        del invader_laser_list[index_to_del]
 
 
-def player_laser_hit(player_laser_list, invader_list, defence_list, score):
+def player_laser_hit(player_laser_list, invader_coord_list, invader_rect_list, defence_list, score):
     """
     Find if a laser hit an invader hit box.
 
     Parameters:
     -----------
     player_laser_list: List of laser position shoot by the player (list)
-    invader_list: List of invader position (list)
+    invader_coord_list: Dictionnary of invader position (dict)
+    invader_rect_list: Dictionnary of invader rect (dict)
     defence_list: List of dictionnary defences (list)
     score: Score of the player (int)
 
@@ -122,61 +110,62 @@ def player_laser_hit(player_laser_list, invader_list, defence_list, score):
     invader_to_delete = []
 
     # Find if a laser is in an _invader hit box.
-    for player_laser in player_laser_list:
+    for laser_index, player_laser in enumerate(player_laser_list):
 
         # Remove laser out of the screen
         if player_laser[1] < 0:
 
-            player_laser_to_delete.append(player_laser)
+            player_laser_to_delete.append(laser_index)
 
         # Check if a laser hit something.
         else:
 
-            laser_pos_x = player_laser[0]
-            laser_pos_y = player_laser[1]
-
             for defences in defence_list:
 
-                if defences["life"] > 0:
-                    defences_pos_x = defences["coordinate"][0]
-                    defences_pos_y = defences["coordinate"][1]
+                # Check if the laser hasn't already been added to the delete
+                #  list and if the player hit the defence wall.
+                if (player_laser not in player_laser_to_delete and defences["life"] > 0
+                        and defences["rect"].colliderect(player_laser)):
 
-                    if ((defences_pos_x < laser_pos_x < defences_pos_x + 30)
-                            and (defences_pos_y < laser_pos_y < defences_pos_y + 20)):
+                    # Delete the player laser who hit.
+                    player_laser_to_delete.append(laser_index)
 
-                        player_laser_to_delete.append(player_laser)
+            for row_key, invader_row in invader_rect_list.items():
 
-            for invader_row in invader_list:
-                for sub_row in invader_list[invader_row]:
-                    for _invader in sub_row:
+                for invader_index, _invader in enumerate(invader_row):
 
-                        invader_pos_x = _invader[0]
-                        invader_pos_y = _invader[1]
+                    # Check if the invader has been hit.
+                    if player_laser.colliderect(_invader):
 
-                        if ((invader_pos_x < laser_pos_x < invader_pos_x + 15)
-                                and (invader_pos_y < laser_pos_y < invader_pos_y + 15)):
+                        # Add point to the player score.
+                        if row_key == "bottomRow":
+                            score += 10
 
-                            if invader_row == "bottomRow":
-                                score += 10
-                            elif invader_row == "middleRow":
-                                score += 20
+                        elif row_key == "middleRow":
+                            score += 20
 
-                            elif invader_row == "topRow":
-                                score += 30
+                        elif row_key == "topRow":
+                            score += 30
 
-                            player_laser_to_delete.append(player_laser)
-                            invader_to_delete.append([invader_row, sub_row, _invader])
+                        else:
+                            score += randint(50, 150)
+
+                        # Delete the player laser who hit.
+                        player_laser_to_delete.append(laser_index)
+
+                        # Append a dict with invader index to be deleted later.
+                        invader_to_delete.append({"row_key": row_key, "index": invader_index})
 
     # Delete player laser who hit.
-    for player_laser_deleted in player_laser_to_delete:
-        player_laser_list.pop(player_laser_list.index(player_laser_deleted))
+    for index_to_del in reversed(player_laser_to_delete):
 
-    # Delete _invader destroyed.
-    for invader_deleted_info in invader_to_delete:
-        row = invader_deleted_info[0]
-        sub_row = invader_list[row].index(invader_deleted_info[1])
-        position = invader_deleted_info[2]
-        invader_list[row][sub_row].pop(invader_list[row][sub_row].index(position))
+        del player_laser_list[index_to_del]
+
+    # Delete invader who has been destroyed.
+    for invader_deleted in invader_to_delete:
+
+        del invader_rect_list[invader_deleted["row_key"]][invader_deleted["index"]]
+        del invader_coord_list[invader_deleted["row_key"]][invader_deleted["index"]]
 
     return score
 
@@ -203,12 +192,13 @@ def laser_hit(game_data):
 
     # Unpack data structure.
     player = game_data["player"]
-    invader_list = game_data["invader"]["coordinate"]
+    invader_data = game_data["invader"]
     defence_list = game_data["defence"]
     score = game_data["score"]
 
     invader_laser_hit(player, invader_laser_list, defence_list)
 
-    game_data["score"] = player_laser_hit(player_laser_list, invader_list, defence_list, score)
+    game_data["score"] = player_laser_hit(player_laser_list, invader_data["coordinate"],
+                                          invader_data["rect"], defence_list, score)
 
     return game_data

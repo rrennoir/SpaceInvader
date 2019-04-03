@@ -3,146 +3,29 @@ Little Space Invader game just for fun ;)
 """
 import pygame as pg
 
+from init_data import setup_data
 from game_update import game_update
-from blit_text import blit_text
-from game_menu import intro, outro, pause
+from game_ui import intro, outro, pause, hud
+from draw import draw_on_screen
 
 
-def invader():
-    """
-    Setup all invader position into a list of coordinate.
-
-    Return:
-    -------
-    invader_data: list of coordinate (list)
-    """
-
-    # Create invader data structur.²
-    invader_data = {
-        "mysterySpaceShip": [],
-        "topRow": [],
-        "middleRow": [],
-        "bottomRow": []}
-
-    x_pos = 15
-    y_pos = 50
-
-    for row_name in invader_data:
-
-        if row_name != "mysterySpaceShip":
-            for _row in range(2):
-
-                invader_row = []
-                for _invader in range(11):
-
-                    invader_position = [x_pos, y_pos]
-                    invader_row.append(invader_position)
-                    x_pos += 25
-
-                invader_data[row_name].append(invader_row)
-                y_pos += 25  # Change row
-                x_pos = 15  # Reset to the left of the screen
-
-    return invader_data
-
-
-def draw(screen, game_data):
-    """
-    Drawn object on the screen, like player, lasers and invaders.
-
-    Parameters:
-    -----------
-    screen: surface of the window (surface)
-    dataInvader: coordinate of the invaders (list)
-    player: information about the player (list)
-    invader_laser: coordinate of the lasers shoot by the invaders (list)
-    """
-
-    # RGB colors.
-    rgb = {
-        "yellow": (255, 255, 0),
-        "red": (255, 0, 0),
-        "blue": (0, 0, 255),
-        "green": (0, 255, 0)}
-
-    color_defence = (
-        (50, 0, 50),
-        (100, 0, 100),
-        (150, 0, 150))
-
-    # Draw _invader.
-    invader_coord = game_data["invader"]["coordinate"]
-    for row_name in invader_coord:
-        for invader_row in invader_coord[row_name]:
-            for invader_position in invader_row:
-                invader_rect = pg.Rect(invader_position, (15, 15))
-                pg.draw.ellipse(screen, rgb["yellow"], invader_rect)
-
-    # Draw the player lasers.
-    for player_laser_position in game_data["player"]["lasers"]:
-        player_laser_rect = pg.Rect(player_laser_position, (2, 7))
-        pg.draw.rect(screen, rgb["blue"], player_laser_rect)
-
-    # Draw the _invader lasers.
-    for invader_laser_position in game_data["invader"]["lasers"]:
-        invader_laser_rect = pg.Rect(invader_laser_position, (2, 7))
-        pg.draw.rect(screen, rgb["green"], invader_laser_rect)
-
-    # Draw defences.
-    for defences in game_data["defence"]:
-
-        if defences["life"] > 0:
-            defences_rect = pg.Rect(defences["coordinate"], (30, 20))
-            pg.draw.rect(screen, color_defence[defences["life"] - 1], defences_rect)
-
-    # Draw player.
-    player_pos_x = game_data["player"]["coordinate"][0]
-    player_pos_y = game_data["player"]["coordinate"][1]
-
-    # Triangle coordinate.
-    triangle_coordinate = (
-        (player_pos_x, player_pos_y),
-        (player_pos_x + 10, player_pos_y - 15),
-        (player_pos_x + 20, player_pos_y))
-
-    pg.draw.polygon(screen, rgb["red"], triangle_coordinate)
-
-
-def game(screen, clock, font_title, font):
+def game(screen, clock, font):
     """
     Function with the game loop.
 
     Parameters:
     -----------
     screen: Surface of the window (surface)
-    background: Surface of the screen (surface)
     clock: Object who track time (clock)
-    font_title: Font used to print text title on surface (font)
-    font: Font used to print text on surface (font)
+    font: Dictionnary with differente font and color (dict)
 
     Return:
     -------
-    result: result of the game win or lost (str)
+    result: Result of the game win or lost (str)
     """
 
     # Setup game_data.
-    direction = 1
-    game_tick = 0
-
-    screen_height = screen.get_height()
-
-    game_data = {
-        "player": {"life": 3, "coordinate": [140, screen_height - 30], "lasers": []},
-        "invader":  {"coordinate": invader(), "lasers": []},
-        "defence": [
-            {"coordinate": (60, screen_height - 80), "life": 3},
-            {"coordinate": (135, screen_height - 80), "life": 3},
-            {"coordinate": (210, screen_height - 80), "life": 3}],
-        "score": 0,
-        "direction": 1}
-
-    font_color = (255, 255, 255)
-
+    game_data = setup_data(screen.get_height())
     running = True
     while running:
 
@@ -155,26 +38,20 @@ def game(screen, clock, font_title, font):
 
             if event.type == pg.QUIT:
                 running = False
-                quit()
+                pg.quit()
 
         # Pause the game is ESCAPE is pressed.
         if keys[pg.K_ESCAPE]:
-            pause(screen, font_title, font, font_color)
+            pause(screen, font["title"], font["basic"], font["color_white"])
 
         # Game Update.
-        game_data, direction, running, game_tick = game_update(game_data, direction, game_tick)
-
-        # Unpack variable from game_data for easier reading.
-        player_life = game_data["player"]["life"]
-        score = game_data["score"]
+        game_data, running = game_update(game_data)
 
         # UI update.
-        ui_text = "Life: {}    Score: {}    FPS: {}    WIP"
-        ui_text_to_print = ui_text.format(player_life, score, int(clock.get_fps()))
-        blit_text(screen, ui_text_to_print, (0, 0), font, font_color)
+        hud(screen, clock, font, game_data["player"]["life"], game_data["score"])
 
         # Game Drawn.
-        draw(screen, game_data)
+        draw_on_screen(screen, game_data)
 
         # Display update pygame.
         screen.blit(screen, (0, 0))
@@ -184,8 +61,7 @@ def game(screen, clock, font_title, font):
         clock.tick(60)
 
     # Check If game win or lost.
-    if player_life > 0:
-        print(player_life)
+    if game_data["player"]["life"] > 0:
         return "Game Win"
 
     return "Game Lost"
@@ -201,9 +77,12 @@ def main():
     pg.init()
 
     # Setup the font.
-    font_basic = pg.font.SysFont("Comic Sans MS", 15)
-    font_title = pg.font.SysFont("Comic Sans MS", 30)
-    font_color = (255, 255, 255)
+    font = {
+        "basic": pg.font.SysFont("Comic Sans MS", 15),
+        "title": pg.font.SysFont("Comic Sans MS", 30),
+        "color_white": (255, 255, 255)
+    }
+
 
     # Setup window of 300 by 400 pixel.
     display_size = [300, 400]
@@ -215,18 +94,18 @@ def main():
     clock = pg.time.Clock()
 
     # Start intro screen and wait for player.
-    intro(screen, font_title, font_basic, font_color)
+    intro(screen, font["title"], font["basic"], font["color_white"])
 
     # Game.
     play = True
     while play:
 
         # Game logic
-        result = game(screen, clock, font_title, font_basic)
+        result = game(screen, clock, font)
 
         # Game terminated draw outro screen
         # and wait for player input to continue or stop.
-        outro(result, screen, font_title, font_basic, font_color)
+        outro(result, screen, font["title"], font["basic"], font["color_white"])
 
 
 if __name__ == "__main__":

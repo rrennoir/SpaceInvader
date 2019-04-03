@@ -6,7 +6,7 @@ from blit_text import blit_text
 
 def intro(screen, font_title, font_text, font_color):
     """
-    Intro screen
+    Intro screen.
 
     Parameters:
     -----------
@@ -38,7 +38,7 @@ def intro(screen, font_title, font_text, font_color):
 
             if keys[pg.K_ESCAPE] or (event.type == pg.QUIT):
                 wait_input = False
-                quit()
+                pg.quit()
 
         # Continue to play when SPACE is pressed.
         if keys[pg.K_SPACE]:
@@ -53,7 +53,7 @@ def outro(result, screen, font_title_result, font, font_color):
     result: Result of the game (str)
     screen: Surface of the window (surface)
     font: Font used for the text (font)
-    font_color: (tuple or list)
+    font_color: Color used for the text (tuple or list)
     """
     # Make the screen black to clear the screen.
     screen.fill((0, 0, 0))
@@ -69,6 +69,7 @@ def outro(result, screen, font_title_result, font, font_color):
               (screen_half_width - 85, screen_half_heigth - 25), font, font_color)
 
     pg.display.update()
+    pg.time.delay(1000)
 
     wait_input = True
     while wait_input:
@@ -80,12 +81,12 @@ def outro(result, screen, font_title_result, font, font_color):
 
             if keys[pg.K_ESCAPE] or (event.type == pg.QUIT):
                 wait_input = False
-                quit()
+                pg.quit()
 
         # Quit if ESCAPE is pressed.
         if keys[pg.K_ESCAPE]:
             wait_input = False
-            quit()
+            pg.quit()
 
         # Continue if SPACE is pressed.
         if keys[pg.K_SPACE]:
@@ -128,7 +129,24 @@ def pause(screen, font_title, font, font_color):
 
             if event.type == pg.QUIT:
                 paused = False
-                quit()
+                pg.quit()
 
         if keys[pg.K_SPACE]:
             paused = False
+
+
+def hud(screen, clock, font, life, score):
+    """
+    Display information for the player in game.
+
+    Parameters:
+    -----------
+    screen: Surface of the window(Surface)
+    clock: An object to help track time (Clock)
+    font: Dictionnary with differente font and color (dict)
+    life: Life of the player (int)
+    score: Score of the player (int)
+    """
+    ui_text = "Life: {}    Score: {}    FPS: {}    WIP"
+    ui_text_to_print = ui_text.format(life, score, int(clock.get_fps()))
+    blit_text(screen, ui_text_to_print, (0, 0), font["basic"], font["color_white"])
