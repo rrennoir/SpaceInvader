@@ -38,7 +38,7 @@ def intro(screen, font_title, font_text, font_color):
 
             if keys[pg.K_ESCAPE] or (event.type == pg.QUIT):
                 wait_input = False
-                quit()
+                pg.quit()
 
         # Continue to play when SPACE is pressed.
         if keys[pg.K_SPACE]:
@@ -69,6 +69,7 @@ def outro(result, screen, font_title_result, font, font_color):
               (screen_half_width - 85, screen_half_heigth - 25), font, font_color)
 
     pg.display.update()
+    pg.time.delay(1000)
 
     wait_input = True
     while wait_input:
@@ -80,12 +81,12 @@ def outro(result, screen, font_title_result, font, font_color):
 
             if keys[pg.K_ESCAPE] or (event.type == pg.QUIT):
                 wait_input = False
-                quit()
+                pg.quit()
 
         # Quit if ESCAPE is pressed.
         if keys[pg.K_ESCAPE]:
             wait_input = False
-            quit()
+            pg.quit()
 
         # Continue if SPACE is pressed.
         if keys[pg.K_SPACE]:
@@ -128,7 +129,7 @@ def pause(screen, font_title, font, font_color):
 
             if event.type == pg.QUIT:
                 paused = False
-                quit()
+                pg.quit()
 
         if keys[pg.K_SPACE]:
             paused = False
