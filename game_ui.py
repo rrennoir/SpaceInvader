@@ -38,7 +38,7 @@ def intro(screen, font_title, font_text, font_color):
 
             if keys[pg.K_ESCAPE] or (event.type == pg.QUIT):
                 wait_input = False
-                pg.quit()
+                quit()
 
         # Continue to play when SPACE is pressed.
         if keys[pg.K_SPACE]:
@@ -81,12 +81,12 @@ def outro(result, screen, font_title_result, font, font_color):
 
             if keys[pg.K_ESCAPE] or (event.type == pg.QUIT):
                 wait_input = False
-                pg.quit()
+                quit()
 
         # Quit if ESCAPE is pressed.
         if keys[pg.K_ESCAPE]:
             wait_input = False
-            pg.quit()
+            quit()
 
         # Continue if SPACE is pressed.
         if keys[pg.K_SPACE]:
@@ -129,7 +129,7 @@ def pause(screen, font_title, font, font_color):
 
             if event.type == pg.QUIT:
                 paused = False
-                pg.quit()
+                quit()
 
         if keys[pg.K_SPACE]:
             paused = False
@@ -147,6 +147,7 @@ def hud(screen, clock, font, life, score):
     life: Life of the player (int)
     score: Score of the player (int)
     """
-    ui_text = "Life: {}    Score: {}    FPS: {}    WIP"
-    ui_text_to_print = ui_text.format(life, score, int(clock.get_fps()))
+    version = "0.1.1"
+    ui_text = "Life: {}    Score: {}    FPS: {}    Ver: {}"
+    ui_text_to_print = ui_text.format(life, score, int(clock.get_fps()), version)
     blit_text(screen, ui_text_to_print, (0, 0), font["basic"], font["color_white"])
