@@ -27,13 +27,14 @@ def keyboard_input(game_data):
     keys = pg.key.get_pressed()
 
     # Check if LEFT or RIGHT arrow key is pressed and allow only 10 update per second.
-    if keys[pg.K_LEFT] and player_coord[0] >= 2:
+    # A key (pg.K_a) because pygame think the keyboard is qwery.
+    if (keys[pg.K_LEFT] or keys[pg.K_a]) and player_coord[0] >= 2:
 
         player_coord[0] -= 2
         new_rect = game_data["player"]["rect"].move(-2, 0)
         game_data["player"]["rect"] = new_rect
 
-    elif keys[pg.K_RIGHT] and player_coord[0] <= 280:
+    elif (keys[pg.K_RIGHT] or keys[pg.K_d]) and player_coord[0] <= 280:
 
         player_coord[0] += 2
         new_rect = game_data["player"]["rect"].move(2, 0)
@@ -277,6 +278,10 @@ def mystery_space_ship(game_data):
             mystery_s_s_coord[0][0] += 2
             new_rect = mystery_s_s_rect[0].move(2, 0)
             mystery_s_s_rect[0] = new_rect
+
+    elif cooldown > 0:
+
+        game_data["tick"]["mystery"] -= 1
 
     return game_data
 
