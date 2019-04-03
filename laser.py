@@ -83,7 +83,7 @@ def invader_laser_hit(player, invader_laser_list, defence_list):
                 player["life"] -= 1
 
     # Delete _invader laser who hit.
-    for index_to_del in invader_laser_to_delete:
+    for index_to_del in reversed(invader_laser_to_delete):
 
         del invader_laser_list[index_to_del]
 
