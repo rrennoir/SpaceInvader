@@ -138,7 +138,17 @@ def change_direction(invader_data, direction):
 
 def update_lasers(invader_lasers, player_lasers):
     """
-    Spec...
+    Update laser position.
+
+    Parameters:
+    -----------
+    invadder_lasers: List of laser (Rect) shoot by the invaders (list)
+    player_lasers: List of laser (Rect) shoot by the player (list)
+
+    Retrun:
+    -------
+    invadder_lasers: Updated list of laser (Rect) shoot by the invaders (list)
+    player_lasers: Updated list of laser (Rect) shoot by the player (list)
     """
 
     # Update player lasers.
@@ -158,7 +168,17 @@ def update_lasers(invader_lasers, player_lasers):
 
 def move_invader(invader_data, direction, shift_down):
     """
-    Spec...
+    Move the invaders.
+
+    Parameters:
+    -----------
+    invader_data: Dictionnary containing all invader information (dict)
+    direction: Direction of the invaders, 1 or -1 (int)
+    shift_down: Number of pixel to increase on the Y axis, 0 or 7 (int)
+
+    Return:
+    -------
+    invader_data: Updated dictionnary containing all invader information (dict)
     """
 
     invader_coord = invader_data["coordinate"]
@@ -191,6 +211,7 @@ def update_invader(game_data, direction):
     Parameters:
     -----------
     game_data: Data structure containing most of the information about the game. (dict)
+    direction: Direction of the invaders, 1 or -1 (int)
 
     Return:
     -------
@@ -221,7 +242,7 @@ def update_invader(game_data, direction):
 
 def mystery_space_ship(game_data):
     """
-    Spec ...
+    Handle the mystery space ship spawn, update and deleting.
 
     Parameters:
     -----------
