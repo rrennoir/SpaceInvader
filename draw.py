@@ -9,18 +9,17 @@ def draw_invader(screen, invader_rect, color):
     Spec ...
     """
 
-    for row_name in invader_rect:
+    for row_key, row in invader_rect.items():
 
-        if row_name != "mysterySpaceShip":
-            for invader_row in invader_rect[row_name]:
+        draw_color = color["yellow"]
 
-                for rect in invader_row:
-                    draw.ellipse(screen, color["yellow"], rect)
+        if row_key == "mysterySpaceShip":
 
-        elif invader_rect[row_name] != []:
+            draw_color = color["cyan"]
 
-            rect = invader_rect[row_name][0]
-            draw.ellipse(screen, color["cyan"], rect)
+        for rect in row:
+
+            draw.ellipse(screen, draw_color, rect)
 
 
 def draw_player(screen, player_coord, color):
