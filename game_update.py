@@ -58,11 +58,17 @@ def keyboard_input(game_data):
     # Kill all invaders.
     if keys[pg.K_F8]:
 
+        game_data["invader"]["rect"] = {
+            "mysterySpaceShip": [],
+            "topRow": [],
+            "middleRow": [],
+            "bottomRow": []}
+
         game_data["invader"]["coordinate"] = {
             "mysterySpaceShip": [],
-            "topRow": [[], []],
-            "middleRow": [[], []],
-            "bottomRow": [[], []]}
+            "topRow": [],
+            "middleRow": [],
+            "bottomRow": []}
 
     return game_data
 
@@ -83,17 +89,15 @@ def check_end_game(invader_data, player):
 
     empty = True
 
-    for row in invader_data:
+    for row_key, row in invader_data.items():
 
-        for sub_row in invader_data[row]:
+        if row_key != "mysterySpaceShip" and row != []:
+            empty = False
 
-            if sub_row != [] and row != "mysterySpaceShip":
-                empty = False
+        for invader_pos in row:
 
-                for invader_pos in sub_row:
-
-                    if invader_pos[0] + 15 >= 400:
-                        return False
+            if invader_pos[0] + 15 >= 400:
+                return False
 
     if empty or player["life"] <= 0:
         return False
@@ -117,21 +121,20 @@ def change_direction(invader_data, direction):
     """
 
     change = False
-    for row in invader_data:
-        if row != "mysterySpaceShip":
-            for sub_row in invader_data[row]:
-                for _invader in sub_row:
+    for _, row in invader_data.items():
 
-                    invader_pos_x = _invader[0]
-                    if ((invader_pos_x >= 280 and direction == 1)
-                            or (invader_pos_x <= 10 and direction == -1)):
+        for invader_pos in row:
 
-                        change = True
+            if ((invader_pos[0] >= 280 and direction == 1)
+                    or (invader_pos[0] <= 10 and direction == -1)):
+
+                change = True
 
     if change:
         direction *= -1
 
     return direction
+
 
 def update_lasers(invader_lasers, player_lasers):
     """
@@ -152,6 +155,7 @@ def update_lasers(invader_lasers, player_lasers):
 
     return invader_lasers, player_lasers
 
+
 def move_invader(invader_data, direction, shift_down):
     """
     Spec...
@@ -164,22 +168,18 @@ def move_invader(invader_data, direction, shift_down):
     if shift_down > 0:
         velocity = 0
 
-    for row in invader_coord:
-        if row != "mysterySpaceShip":
+    for row_key, row in invader_coord.items():
 
-            for sub_row in invader_coord[row]:
-                for _invader in sub_row:
+        if row_key != "mysterySpaceShip":
+            for invader_index, _invader in enumerate(row):
 
-                    _invader[0] += (velocity * direction)
-                    _invader[1] += shift_down
+                _invader[0] += (velocity * direction)
+                _invader[1] += shift_down
 
-                    sub_row_index = invader_coord[row].index(sub_row)
-                    invader_index = sub_row.index(_invader)
+                old_invader_rect = invader_rect[row_key][invader_index]
 
-                    invader_row = invader_rect[row][sub_row_index]
-
-                    new_rect = invader_row[invader_index].move(velocity * direction, shift_down)
-                    invader_rect[row][sub_row_index][invader_index] = new_rect
+                new_invader_rect = old_invader_rect.move(velocity * direction, shift_down)
+                invader_rect[row_key][invader_index] = new_invader_rect
 
     return invader_data
 
@@ -247,8 +247,8 @@ def mystery_space_ship(game_data):
     elif mystery_s_s_coord != []:
 
         if mystery_s_s_coord[0][0] > 280:
-            mystery_s_s_coord.pop()
-            mystery_s_s_rect.pop()
+            del mystery_s_s_coord[0]
+            del mystery_s_s_rect[0]
 
             game_data["tick"]["mystery"] = 60
 
