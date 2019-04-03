@@ -1,5 +1,19 @@
 """
-Little Space Invader game just for fun ;)
+Space Invader game just for fun ;)
+
+Version:
+--------
+0.1.1
+
+Controls:
+---------
+going left: Left arrows key or Q. (A in the code because pygame think it's a qwerty keyboard)
+going right: Right arrows key or D.
+shoot laser: Space bar.
+pause the game: Escape.
+
+By Ryan Rennoir
+Using Python 3.6.5
 """
 import pygame as pg
 
@@ -38,7 +52,7 @@ def game(screen, clock, font):
 
             if event.type == pg.QUIT:
                 running = False
-                pg.quit()
+                quit()
 
         # Pause the game is ESCAPE is pressed.
         if keys[pg.K_ESCAPE]:
