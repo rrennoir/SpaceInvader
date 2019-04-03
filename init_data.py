@@ -42,16 +42,16 @@ def invader():
 
     for row_name in invader_data_structure["coordinate"]:
 
-        # No row to create for mystery space ship,
-        # only one for the top row, 2 other wise
+        # No invader to create for mystery space ship at the start,
+        # only 11 for the top row, 22 other wise
         if row_name == "mysterySpaceShip":
-            nb_row = 0
+            invader_per_row = 0
 
         elif row_name == "topRow":
-            nb_row = 1
+            invader_per_row = 11
 
         else:
-            nb_row = 2
+            invader_per_row = 22
 
         # Based on the row name (top, middle or bottom) there is 1 or 2 row containing 11 column.
         # So 1 row for top, 2 for middle and bottom each, 5 in total.
@@ -59,33 +59,31 @@ def invader():
         # X axis (from one invader left side to the next invader left side NOT the center).
         # For the Y axis the invaders are separeted by 15 pixel (from one
         # invader top to the next invader top NOT the center)
-        for _row in range(nb_row):
 
-            invader_row = []
-            invader_row_rect = []
+        for _invader in range(invader_per_row):
 
-            for _invader in range(11):
-
-                # Create the invader coordinate and rect.
-                invader_position = [x_pos, y_pos]
-                invader_rect = Rect(invader_position, invader_size)
-
-                # Add them to the list.
-                invader_row.append(invader_position)
-                invader_row_rect.append(invader_rect)
-
-                # Move 25 pixels to the right.
-                x_pos += 25
+            # Create the invader coordinate and rect.
+            invader_position = [x_pos, y_pos]
+            invader_rect = Rect(invader_position, invader_size)
 
             # Add to rows to the data structure.
-            invader_data_structure["coordinate"][row_name].append(invader_row)
-            invader_data_structure["rect"][row_name].append(invader_row_rect)
+            invader_data_structure["coordinate"][row_name].append(invader_position)
+            invader_data_structure["rect"][row_name].append(invader_rect)
 
-            # Change row.
-            y_pos += 25
+            # Move 25 pixels to the right.
+            x_pos += 25
 
-            # Reset to the left of the screen.
-            x_pos = 15
+            if (row_name != "topRow" and
+                    len(invader_data_structure["coordinate"][row_name]) == 11):
+
+                x_pos = 15
+                y_pos += 25
+
+        # Change row.
+        y_pos += 25
+
+        # Reset to the left of the screen.
+        x_pos = 15
 
     return invader_data_structure
 
