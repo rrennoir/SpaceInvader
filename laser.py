@@ -38,7 +38,7 @@ def invader_shoot(invader_list, invader_laser, player_pos_x):
         if player_pos_x - 50 < int(ref) < player_pos_x + 50 and randint(0, 100) > 85:
 
             invader_laser_rect = Rect(position, (2, 7))
-            invader_laser.append(invader_laser_rect)
+            invader_laser.append(invader_laser_rect.move(6, 17))
 
     return invader_laser
 
