@@ -3,7 +3,7 @@ Space Invader game just for fun ;)
 
 Version:
 --------
-0.1.1
+0.2.0
 
 Controls:
 ---------
@@ -52,6 +52,7 @@ def game(screen, clock, font):
 
             if event.type == pg.QUIT:
                 running = False
+                pg.quit()
                 quit()
 
         # Pause the game is ESCAPE is pressed.
