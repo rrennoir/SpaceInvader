@@ -261,7 +261,7 @@ def mystery_space_ship(game_data):
 
     if tick == 0 and cooldown == 0 and mystery_s_s_coord == [] and randint(0, 10) > 9:
 
-        starting_coord = [15, 20]
+        starting_coord = [15, 40]
 
         mystery_s_s_coord.append(starting_coord)
         mystery_s_s_rect.append(pg.Rect(starting_coord, (30, 10)))
