@@ -4,7 +4,7 @@ Draw module.
 
 from pygame import draw
 
-def draw_invader(screen, invader_rect, color):
+def draw_invader(screen, invader_rect, color, hit_box):
     """
     Spec ...
     """
@@ -21,25 +21,23 @@ def draw_invader(screen, invader_rect, color):
 
             draw.ellipse(screen, draw_color, rect)
 
+            if hit_box:
+                draw.rect(screen, (255, 50, 255), rect, 1)
 
-def draw_player(screen, player_coord, color):
+def draw_player(screen, player, color, hit_box):
     """
     Spec...
     """
 
-    # Triangle coordinate.
-    player_pos_x = player_coord[0]
-    player_pos_y = player_coord[1]
+    player_rect = player["rect"]
+    for rect in player_rect:
+        draw.rect(screen, color["red"], rect)
 
-    triangle_coordinate = (
-        (player_pos_x, player_pos_y),
-        (player_pos_x + 10, player_pos_y - 15),
-        (player_pos_x + 20, player_pos_y))
-
-    draw.polygon(screen, color["red"], triangle_coordinate)
+    if hit_box:
+        draw.rect(screen, (50, 255, 255), player["hitBox"], 1)
 
 
-def draw_lasers(screen, player_lasers, invader_lasers, color):
+def draw_lasers(screen, player_lasers, invader_lasers, color, hit_box):
     """
     Spec...
     """
@@ -48,9 +46,15 @@ def draw_lasers(screen, player_lasers, invader_lasers, color):
     for player_laser_rect in player_lasers:
         draw.rect(screen, color["blue"], player_laser_rect)
 
+        if hit_box:
+            draw.rect(screen, (50, 255, 255), player_laser_rect, 1)
+
     # Draw the _invader lasers.
     for invader_laser_rect in invader_lasers:
         draw.rect(screen, color["green"], invader_laser_rect)
+
+        if hit_box:
+            draw.rect(screen, (255, 255, 50), invader_laser_rect, 1)
 
 
 
@@ -79,17 +83,24 @@ def draw_on_screen(screen, game_data):
         (100, 0, 100),
         (150, 0, 150))
 
+    hit_box = game_data["Cheat"]["showHitBox"]
+
     # Draw defences.
     for defences in game_data["defence"]:
 
         if defences["life"] > 0:
             draw.rect(screen, color_defence[defences["life"] - 1], defences["rect"])
 
+            if hit_box:
+                draw.rect(screen, (255, 255, 255), defences["rect"], 1)
+
+
     # Draw _invader.
-    draw_invader(screen, game_data["invader"]["rect"], color_rgb)
+    draw_invader(screen, game_data["invader"]["rect"], color_rgb, hit_box)
 
     # Draw lasers.
-    draw_lasers(screen, game_data["player"]["lasers"], game_data["invader"]["lasers"], color_rgb)
+    draw_lasers(screen, game_data["player"]["lasers"],
+                game_data["invader"]["lasers"], color_rgb, hit_box)
 
     # Draw player.
-    draw_player(screen, game_data["player"]["coordinate"], color_rgb)
+    draw_player(screen, game_data["player"], color_rgb, hit_box)
