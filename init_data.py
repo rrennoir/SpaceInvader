@@ -4,7 +4,46 @@ This module handle the data structure creation for the game.
 
 from pygame import Rect
 
-def invader():
+def create_invader(pixel_size, invader_position):
+    """
+    Spec...
+    """
+
+    invader_matrix = [
+        [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
+        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0],
+        [0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0],
+        [0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0]
+    ]
+
+    x_pos, y_pos = invader_position
+    invader_array = []
+
+    for line in invader_matrix:
+
+        x_pos = invader_position[0]
+        for column in line:
+
+            if column == 0:
+                x_pos += pixel_size
+                continue
+
+            rect = Rect(x_pos, y_pos, pixel_size, pixel_size)
+            invader_array.append(rect)
+
+            x_pos += pixel_size
+
+        y_pos += pixel_size
+
+    return invader_array
+
+
+def invader(screen_width, screen_height):
     """
     Create the dictionnay with all invader information.
 
@@ -15,14 +54,14 @@ def invader():
 
     # Create invader data structur.
     invader_data_structure = {
-        "coordinate": {},
+        "hitBox": {},
         "rect": {},
         "lasers": []}
 
     # Create 2 data structure, one for the position and one for the rect
     # used in the collision systeme using pygame found in the laser module.
     # Could store position and rect in one list but may complexifie even more the program.
-    invader_data_structure["coordinate"] = {
+    invader_data_structure["hitBox"] = {
         "mysterySpaceShip": [],
         "topRow": [],
         "middleRow": [],
@@ -34,13 +73,22 @@ def invader():
         "middleRow": [],
         "bottomRow": []}
 
-    invader_size = (15, 15)
+    # Set the size of the pixel for pixel art shape.
+    pixel_size = 2
 
-    # Setup starting position for the x and y.
-    x_pos = 15
-    y_pos = 50
+    # Compute the size of the defence based on the size of the pixel
+    # and the number of square used for the invader shape.
+    invader_width = 12 * pixel_size
 
-    for row_name in invader_data_structure["coordinate"]:
+    # Compute the void between 2 defences.
+    # Screen width - the width of the defences divided by the number of defences + 1.
+    void_bt_invader = (screen_width - 11 * invader_width) // 12
+
+    x_pos = void_bt_invader
+    y_pos = screen_height - (screen_height - 50)
+    offset = void_bt_invader + invader_width
+
+    for row_name in invader_data_structure["hitBox"]:
 
         # No invader to create for mystery space ship at the start,
         # only 11 for the top row, 22 other wise
@@ -64,26 +112,28 @@ def invader():
 
             # Create the invader coordinate and rect.
             invader_position = [x_pos, y_pos]
-            invader_rect = Rect(invader_position, invader_size)
+            invader_hit_box = Rect(invader_position, (pixel_size * 12, pixel_size * 9))
+
+            invader_array = create_invader(pixel_size, invader_position)
 
             # Add to rows to the data structure.
-            invader_data_structure["coordinate"][row_name].append(invader_position)
-            invader_data_structure["rect"][row_name].append(invader_rect)
+            invader_data_structure["hitBox"][row_name].append(invader_hit_box)
+            invader_data_structure["rect"][row_name].append(invader_array)
 
             # Move 25 pixels to the right.
-            x_pos += 25
+            x_pos += offset
 
             if (row_name != "topRow" and
-                    len(invader_data_structure["coordinate"][row_name]) == 11):
+                    len(invader_data_structure["hitBox"][row_name]) == 11):
 
-                x_pos = 15
+                x_pos = void_bt_invader
                 y_pos += 25
 
         # Change row.
         y_pos += 25
 
         # Reset to the left of the screen.
-        x_pos = 15
+        x_pos = void_bt_invader
 
     return invader_data_structure
 
@@ -118,10 +168,21 @@ def defence(screen_height, screen_width):
         [1, 0, 0, 0, 1]
     ]
 
-    offset = screen_width // 4
-    x_pos = offset // 2
-    y_pos = screen_height - 80
+    # Set the size of the pixel for pixel art shape.
     pixel_size = 5
+
+    # Compute the size of the defence based on the size of the pixel
+    # and the number of square used for the defence shape.
+    defence_width = len(matrix[0]) * pixel_size
+
+    # Compute the void between 2 defences.
+    # Screen width - the width of the defences divided by the number of defences + 1.
+    void_bt_defence = (screen_width - 4 * defence_width) // 5
+
+
+    x_pos = void_bt_defence
+    y_pos = screen_height - 80
+    offset = x_pos + defence_width
 
     defence_array = []
     for i, _ in enumerate(coord):
@@ -129,12 +190,12 @@ def defence(screen_height, screen_width):
         coord[i] = [x_pos, y_pos]
         x_pos += offset
 
-        y_coord = coord[i][1] - pixel_size * 2
+        y_coord = coord[i][1]
 
         # Use the maxtrix to create the defence shape with square.
         for line in matrix:
 
-            x_coord = coord[i][0] - pixel_size * 2
+            x_coord = coord[i][0]
             for column in line:
 
                 # If the column = 0, offset the x axis and pass to the next column.
@@ -178,7 +239,7 @@ def player(screen_height, screen_width):
 
     pixel_size = 5
 
-    player_coordinate = [screen_width // 2, screen_height - 30] # center of the player
+    player_coordinate = [screen_width // 2, screen_height - 30] # center of the screen.
     player_hit_box = Rect(player_coordinate[0], player_coordinate[1], 25, 15)
 
     player_array = []
@@ -229,7 +290,7 @@ def setup_data(screen_height, screen_width):
     game_data = {
         "player": player(screen_height, screen_width),
 
-        "invader":  invader(),
+        "invader":  invader(screen_width, screen_height),
 
         "defence": defence(screen_height, screen_width),
 
@@ -240,6 +301,8 @@ def setup_data(screen_height, screen_width):
         "Cheat": {
             "showHitBox" : False
         },
+
+        "Window" : (screen_width, screen_height),
 
         "tick": {
             "game": 0,
