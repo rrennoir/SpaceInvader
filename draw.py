@@ -17,12 +17,13 @@ def draw_invader(screen, invader_rect, color, hit_box):
 
             draw_color = color["cyan"]
 
-        for rect in row:
+        for rect_array in row:
+            for rect in rect_array:
 
-            draw.ellipse(screen, draw_color, rect)
+                draw.rect(screen, draw_color, rect)
 
-            if hit_box:
-                draw.rect(screen, (255, 50, 255), rect, 1)
+                # if hit_box:
+                #     draw.rect(screen, (255, 50, 255), rect, 1)
 
 def draw_player(screen, player, color, hit_box):
     """
