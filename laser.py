@@ -69,7 +69,7 @@ def invader_laser_hit(player, invader_laser_list, defence_list):
             # Defence.
             for defences in defence_list:
 
-                if (invader_laser not in invader_laser_to_delete and defences["life"] > 0
+                if (laser_index not in invader_laser_to_delete and defences["life"] > 0
                         and defences["rect"].colliderect(invader_laser)):
 
                     invader_laser_to_delete.append(laser_index)
@@ -77,7 +77,7 @@ def invader_laser_hit(player, invader_laser_list, defence_list):
 
             # Player.
             if (invader_laser not in invader_laser_to_delete
-                    and player["rect"].colliderect(invader_laser)):
+                    and player["hitBox"].colliderect(invader_laser)):
 
                 invader_laser_to_delete.append(laser_index)
                 player["life"] -= 1
@@ -124,7 +124,7 @@ def player_laser_hit(player_laser_list, invader_coord_list, invader_rect_list, d
 
                 # Check if the laser hasn't already been added to the delete
                 #  list and if the player hit the defence wall.
-                if (player_laser not in player_laser_to_delete and defences["life"] > 0
+                if (laser_index not in player_laser_to_delete and defences["life"] > 0
                         and defences["rect"].colliderect(player_laser)):
 
                     # Delete the player laser who hit.
