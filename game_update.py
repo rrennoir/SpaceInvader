@@ -21,7 +21,10 @@ def keyboard_input(game_data):
     game_data: Updated data structure containing most of the information about the game. (dict)
     """
 
-    player_coord = game_data["player"]["coordinate"]
+    if game_data["tick"]["keyDelay"] > 0:
+        game_data["tick"]["keyDelay"] -= 1
+
+    player_coord = game_data["player"]["hitBox"]
     player_laser = game_data["player"]["lasers"]
 
     keys = pg.key.get_pressed()
@@ -30,21 +33,17 @@ def keyboard_input(game_data):
     # A key (pg.K_a) because pygame think the keyboard is qwery.
     if (keys[pg.K_LEFT] or keys[pg.K_a]) and player_coord[0] >= 2:
 
-        player_coord[0] -= 2
-        new_rect = game_data["player"]["rect"].move(-2, 0)
-        game_data["player"]["rect"] = new_rect
+        player_move(game_data["player"], -2)
 
     elif (keys[pg.K_RIGHT] or keys[pg.K_d]) and player_coord[0] <= 280:
 
-        player_coord[0] += 2
-        new_rect = game_data["player"]["rect"].move(2, 0)
-        game_data["player"]["rect"] = new_rect
+        player_move(game_data["player"], 2)
 
 
     # Check if SPACE is pressed and allow only 1 update per second (so 1 shoot/s).
     if keys[pg.K_SPACE] and (game_data["tick"]["shooting"] == 0):
 
-        player_laser_position = [player_coord[0] + 10, player_coord[1] - 15]
+        player_laser_position = [player_coord.x + 11, player_coord.y - 8]
         player_laser_rect = pg.Rect(player_laser_position, (2, 7))
 
         player_laser.append(player_laser_rect)
@@ -71,7 +70,28 @@ def keyboard_input(game_data):
             "middleRow": [],
             "bottomRow": []}
 
+    elif keys[pg.K_F7] and game_data["tick"]["keyDelay"] == 0:
+
+        game_data["tick"]["keyDelay"] = 30
+
+        if game_data["Cheat"]["showHitBox"]:
+            game_data["Cheat"]["showHitBox"] = False
+
+        else:
+            game_data["Cheat"]["showHitBox"] = True
+
     return game_data
+
+
+def player_move(player, offset):
+    """
+    Spec...
+    """
+
+    player["hitBox"][0] += offset
+
+    for i, rect in enumerate(player["rect"]):
+        player["rect"][i] = rect.move(offset, 0)
 
 
 def check_end_game(invader_data, player):
@@ -233,7 +253,7 @@ def update_invader(game_data, direction):
     # Update _invader position.
     move_invader(game_data["invader"], direction_new, shift_down)
 
-    player_pos_x = game_data["player"]["coordinate"][0]
+    player_pos_x = game_data["player"]["hitBox"].x
     invader_lasers = invader_shoot(invader_list, invader_lasers, player_pos_x)
 
     game_data["direction"] = direction_new
