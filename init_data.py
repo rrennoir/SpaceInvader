@@ -94,6 +94,7 @@ def defence(screen_height, screen_width):
 
     Parameters:
     -----------
+    screen_width: Width of the screen (int)
     screen_height: Height of the screen (int)
 
     Return:
@@ -154,12 +155,13 @@ def defence(screen_height, screen_width):
     return defence_array
 
 
-def player(screen_height):
+def player(screen_height, screen_width):
     """
     Create player data.
 
     Parameters:
     -----------
+    screen_width: Width of the screen (int)
     screen_height: Height of the screen (int)
 
     Return:
@@ -167,15 +169,44 @@ def player(screen_height):
     player_data: Player information (dict)
     """
 
-    # Setup player coordinate and rect.
-    player_coordinate = [140, screen_height - 30]
-    player_rect = Rect(player_coordinate[0], player_coordinate[1] - 15, 20, 15)
+    # Player matrix.
+    player_matrix = [
+        [0, 0, 1, 0, 0],
+        [1, 1, 1, 1, 1],
+        [1, 1, 1, 1, 1]
+    ]
+
+    pixel_size = 5
+
+    player_coordinate = [screen_width // 2, screen_height - 30] # center of the player
+    player_hit_box = Rect(player_coordinate[0], player_coordinate[1], 25, 15)
+
+    player_array = []
+    y_pos = player_coordinate[1]
+
+    for line in player_matrix:
+
+        x_pos = player_coordinate[0]
+
+        for column in line:
+
+            if column == 0:
+
+                x_pos += pixel_size
+                continue
+
+            player_rect = Rect(x_pos, y_pos, pixel_size, pixel_size)
+            player_array.append(player_rect)
+
+            x_pos += pixel_size
+
+        y_pos += pixel_size
 
     # Create player data.
     player_data = {
         "life": 3,
-        "coordinate": player_coordinate,
-        "rect": player_rect,
+        "rect": player_array,
+        "hitBox": player_hit_box,
         "lasers": []}
 
     return player_data
@@ -196,7 +227,7 @@ def setup_data(screen_height, screen_width):
 
     # Create game data.
     game_data = {
-        "player": player(screen_height),
+        "player": player(screen_height, screen_width),
 
         "invader":  invader(),
 
@@ -206,10 +237,16 @@ def setup_data(screen_height, screen_width):
 
         "direction": 1,
 
+        "Cheat": {
+            "showHitBox" : False
+        },
+
         "tick": {
             "game": 0,
             "mystery": 0,
             "moving": 0,
-            "shooting": 0}}
+            "shooting": 0,
+            "keyDelay" : 0}
+        }
 
     return game_data
