@@ -39,7 +39,7 @@ def game(screen, clock, font):
     """
 
     # Setup game_data.
-    game_data = setup_data(screen.get_height())
+    game_data = setup_data(screen.get_height(), screen.get_width())
     running = True
     while running:
 

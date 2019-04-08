@@ -88,7 +88,7 @@ def invader():
     return invader_data_structure
 
 
-def defence(screen_height):
+def defence(screen_height, screen_width):
     """
     Initialize the defences datastructure.
 
@@ -101,39 +101,57 @@ def defence(screen_height):
     defence_list: List of dictionnary containing all defences data (list)
     """
 
-    # Setup the defences coordinate, list and size.
-    defence_coordinate = [
-        (50, screen_height - 80),
-        (50, screen_height - 70),
-        (60, screen_height - 80),
-        (70, screen_height - 80),
-        (70, screen_height - 70),
+    # coord
+    coord = [
+        [],
+        [],
+        [],
+        [],
+    ]
 
-        (125, screen_height - 80),
-        (125, screen_height - 70),
-        (135, screen_height - 80),
-        (145, screen_height - 80),
-        (145, screen_height - 70),
+    # Defence coord matrix
+    matrix = [
+        [0, 1, 1, 1, 0],
+        [1, 1, 1, 1, 1],
+        [1, 1, 0, 1, 1],
+        [1, 0, 0, 0, 1]
+    ]
 
-        (200, screen_height - 80),
-        (200, screen_height - 70),
-        (210, screen_height - 80),
-        (220, screen_height - 80),
-        (220, screen_height - 70)]
+    offset = screen_width // 4
+    x_pos = offset // 2
+    y_pos = screen_height - 80
+    pixel_size = 5
 
-    defence_size = (10, 10)
-    defence_list = []
+    defence_array = []
+    for i, _ in enumerate(coord):
 
-    # For each defence create a rect, who will be used in
-    # the collision system and store his life stat.
-    for _defence in defence_coordinate:
+        coord[i] = [x_pos, y_pos]
+        x_pos += offset
 
-        defence_rect = Rect(_defence, defence_size)
-        defence_info = {"rect": defence_rect, "life": 3}
+        y_coord = coord[i][1] - pixel_size * 2
 
-        defence_list.append(defence_info)
+        # Use the maxtrix to create the defence shape with square.
+        for line in matrix:
 
-    return defence_list
+            x_coord = coord[i][0] - pixel_size * 2
+            for column in line:
+
+                # If the column = 0, offset the x axis and pass to the next column.
+                if column == 0:
+
+                    x_coord += pixel_size
+                    continue
+
+                # Create the rectangle, create a dictionnary and add the dictionnary to the array.
+                defence_rect = Rect((x_coord, y_coord), (pixel_size, pixel_size))
+                defence_array.append({"rect": defence_rect, "life": 3})
+
+                # Offset the x axis.
+                x_coord += pixel_size
+
+            y_coord += pixel_size
+
+    return defence_array
 
 
 def player(screen_height):
@@ -163,7 +181,7 @@ def player(screen_height):
     return player_data
 
 
-def setup_data(screen_height):
+def setup_data(screen_height, screen_width):
     """
     Setup game_data.
 
@@ -182,7 +200,7 @@ def setup_data(screen_height):
 
         "invader":  invader(),
 
-        "defence": defence(screen_height),
+        "defence": defence(screen_height, screen_width),
 
         "score": 0,
 
