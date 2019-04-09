@@ -4,44 +4,6 @@ This module handle the data structure creation for the game.
 
 from pygame import Rect
 
-def create_invader(pixel_size, invader_position):
-    """
-    Spec...
-    """
-
-    invader_matrix = [
-        [0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0],
-        [0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-        [0, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 0],
-        [0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0],
-        [0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0]
-    ]
-
-    x_pos, y_pos = invader_position
-    invader_array = []
-
-    for line in invader_matrix:
-
-        x_pos = invader_position[0]
-        for column in line:
-
-            if column == 0:
-                x_pos += pixel_size
-                continue
-
-            rect = Rect(x_pos, y_pos, pixel_size, pixel_size)
-            invader_array.append(rect)
-
-            x_pos += pixel_size
-
-        y_pos += pixel_size
-
-    return invader_array
-
 
 def invader(screen_width, screen_height):
     """
@@ -58,16 +20,9 @@ def invader(screen_width, screen_height):
         "rect": {},
         "lasers": []}
 
-    # Create 2 data structure, one for the position and one for the rect
-    # used in the collision systeme using pygame found in the laser module.
-    # Could store position and rect in one list but may complexifie even more the program.
+    # Create for the hit box used in the collision systeme
+    # using pygame found in the laser module.
     invader_data_structure["hitBox"] = {
-        "mysterySpaceShip": [],
-        "topRow": [],
-        "middleRow": [],
-        "bottomRow": []}
-
-    invader_data_structure["rect"] = {
         "mysterySpaceShip": [],
         "topRow": [],
         "middleRow": [],
@@ -114,11 +69,8 @@ def invader(screen_width, screen_height):
             invader_position = [x_pos, y_pos]
             invader_hit_box = Rect(invader_position, (pixel_size * 12, pixel_size * 9))
 
-            invader_array = create_invader(pixel_size, invader_position)
-
             # Add to rows to the data structure.
             invader_data_structure["hitBox"][row_name].append(invader_hit_box)
-            invader_data_structure["rect"][row_name].append(invader_array)
 
             # Move 25 pixels to the right.
             x_pos += offset
