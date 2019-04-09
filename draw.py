@@ -4,13 +4,17 @@ Draw module.
 
 from pygame import draw
 
+from invader import create_invader_shape
 
-def draw_invader(screen, invader_rect, invader_hit_box, color, hit_box):
+
+def draw_invader(screen, invader_hit_box, color, hit_box):
     """
     Spec ...
     """
 
-    for row_key, row in invader_rect.items():
+    pixel_size = 2
+
+    for row_key, row in invader_hit_box.items():
 
         draw_color = color["yellow"]
 
@@ -18,14 +22,15 @@ def draw_invader(screen, invader_rect, invader_hit_box, color, hit_box):
 
             draw_color = color["cyan"]
 
-        for index, rect_array in enumerate(row):
-            for rect in rect_array:
-
-                draw.rect(screen, draw_color, rect)
+        for rect_hit_box in row:
 
             if hit_box:
-                rect = invader_hit_box[row_key][index]
-                draw.rect(screen, (255, 50, 255), rect, 1)
+                draw.rect(screen, (255, 50, 255), rect_hit_box, 1)
+
+            invader_array = create_invader_shape(pixel_size, rect_hit_box.topleft)
+            for rect in invader_array:
+
+                draw.rect(screen, draw_color, rect)
 
 
 def draw_player(screen, player, color, hit_box):
@@ -97,7 +102,7 @@ def draw_on_screen(screen, game_data):
 
     # Draw _invader.
     invader = game_data["invader"]
-    draw_invader(screen, invader["rect"], invader["hitBox"], color_rgb, hit_box)
+    draw_invader(screen, invader["hitBox"], color_rgb, hit_box)
 
     # Draw lasers.
     draw_lasers(screen, game_data["player"]["lasers"],
