@@ -4,7 +4,8 @@ Draw module.
 
 from pygame import draw
 
-def draw_invader(screen, invader_rect, color, hit_box):
+
+def draw_invader(screen, invader_rect, invader_hit_box, color, hit_box):
     """
     Spec ...
     """
@@ -17,13 +18,15 @@ def draw_invader(screen, invader_rect, color, hit_box):
 
             draw_color = color["cyan"]
 
-        for rect_array in row:
+        for index, rect_array in enumerate(row):
             for rect in rect_array:
 
                 draw.rect(screen, draw_color, rect)
 
-                # if hit_box:
-                #     draw.rect(screen, (255, 50, 255), rect, 1)
+            if hit_box:
+                rect = invader_hit_box[row_key][index]
+                draw.rect(screen, (255, 50, 255), rect, 1)
+
 
 def draw_player(screen, player, color, hit_box):
     """
@@ -58,17 +61,14 @@ def draw_lasers(screen, player_lasers, invader_lasers, color, hit_box):
             draw.rect(screen, (255, 255, 50), invader_laser_rect, 1)
 
 
-
 def draw_on_screen(screen, game_data):
     """
-    Drawn object on the screen, like player, lasers and invaders.
+    Drawn object on the screen, like player, lasers, defences and invaders.
 
     Parameters:
     -----------
     screen: Surface of the window (surface)
-    dataInvader: Coordinate of the invaders (list)
-    player: information about the player (list)
-    invader_laser: Coordinate of the lasers shoot by the invaders (list)
+    game_data: Data structure containing most of the information about the game. (dict)
     """
 
     # RGB colors.
@@ -95,9 +95,9 @@ def draw_on_screen(screen, game_data):
             if hit_box:
                 draw.rect(screen, (255, 255, 255), defences["rect"], 1)
 
-
     # Draw _invader.
-    draw_invader(screen, game_data["invader"]["rect"], color_rgb, hit_box)
+    invader = game_data["invader"]
+    draw_invader(screen, invader["rect"], invader["hitBox"], color_rgb, hit_box)
 
     # Draw lasers.
     draw_lasers(screen, game_data["player"]["lasers"],
