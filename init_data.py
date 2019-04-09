@@ -290,7 +290,7 @@ def setup_data(screen_height, screen_width):
     game_data = {
         "player": player(screen_height, screen_width),
 
-        "invader":  invader(screen_width, screen_height),
+        "invader": invader(screen_width, screen_height),
 
         "defence": defence(screen_height, screen_width),
 

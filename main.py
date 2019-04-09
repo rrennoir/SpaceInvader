@@ -98,9 +98,8 @@ def main():
         "color_white": (255, 255, 255)
     }
 
-
-    # Setup window of 300 by 400 pixel.
-    display_size = [300, 400]
+    # Setup window of 500 by 400 pixel.
+    display_size = [500, 400]
     screen = pg.display.set_mode(display_size)
 
     # Set the windows title
