@@ -25,13 +25,13 @@ def invader_shoot(invader_list, invader_laser, player_pos_x):
         if row_key != "mysterySpaceShip":
             for invader_pos in row:
 
-                ref = str(invader_pos[0])
-                if ref in first_invader_list and invader_pos[1] > first_invader_list[ref][1]:
+                ref = str(invader_pos.x)
+                if ref in first_invader_list and invader_pos.y > first_invader_list[ref][1]:
 
-                    first_invader_list[ref] = invader_pos
+                    first_invader_list[ref] = invader_pos.topleft
 
                 else:
-                    first_invader_list.update({ref: invader_pos})
+                    first_invader_list.update({ref: invader_pos.topleft})
 
     for ref, position in first_invader_list.items():
 
@@ -88,15 +88,14 @@ def invader_laser_hit(player, invader_laser_list, defence_list):
         del invader_laser_list[index_to_del]
 
 
-def player_laser_hit(player_laser_list, invader_coord_list, invader_rect_list, defence_list, score):
+def player_laser_hit(player_laser_list, invaders_hit_box, defence_list, score):
     """
     Find if a laser hit an invader hit box.
 
     Parameters:
     -----------
     player_laser_list: List of laser position shoot by the player (list)
-    invader_coord_list: Dictionnary of invader position (dict)
-    invader_rect_list: Dictionnary of invader rect (dict)
+    invaders_hit_box: Dictionnary of invader hit box (dict)
     defence_list: List of dictionnary defences (list)
     score: Score of the player (int)
 
@@ -130,7 +129,7 @@ def player_laser_hit(player_laser_list, invader_coord_list, invader_rect_list, d
                     # Delete the player laser who hit.
                     player_laser_to_delete.append(laser_index)
 
-            for row_key, invader_row in invader_rect_list.items():
+            for row_key, invader_row in invaders_hit_box.items():
 
                 for invader_index, _invader in enumerate(invader_row):
 
@@ -164,8 +163,7 @@ def player_laser_hit(player_laser_list, invader_coord_list, invader_rect_list, d
     # Delete invader who has been destroyed.
     for invader_deleted in invader_to_delete:
 
-        del invader_rect_list[invader_deleted["row_key"]][invader_deleted["index"]]
-        del invader_coord_list[invader_deleted["row_key"]][invader_deleted["index"]]
+        del invaders_hit_box[invader_deleted["row_key"]][invader_deleted["index"]]
 
     return score
 
@@ -192,13 +190,12 @@ def laser_hit(game_data):
 
     # Unpack data structure.
     player = game_data["player"]
-    invader_data = game_data["invader"]
+    invader_hit_box = game_data["invader"]["hitBox"]
     defence_list = game_data["defence"]
     score = game_data["score"]
 
     invader_laser_hit(player, invader_laser_list, defence_list)
 
-    game_data["score"] = player_laser_hit(player_laser_list, invader_data["coordinate"],
-                                          invader_data["rect"], defence_list, score)
+    game_data["score"] = player_laser_hit(player_laser_list, invader_hit_box, defence_list, score)
 
     return game_data
