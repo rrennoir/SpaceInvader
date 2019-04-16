@@ -9,7 +9,14 @@ from invader import create_invader_shape
 
 def draw_invader(screen, invader_hit_box, color, hit_box):
     """
-    Spec ...
+    Draw invader on the screen.
+
+    Parameters:
+    -----------
+    screen: Surface of the window (surface)
+    invader_hit_box: List of Rect for the invader hit box (list)
+    color: Dictionnary of RGB color (dict)
+    hit_box: Setting if the hit box must be show (bool)
     """
 
     pixel_size = 2
@@ -35,7 +42,14 @@ def draw_invader(screen, invader_hit_box, color, hit_box):
 
 def draw_player(screen, player, color, hit_box):
     """
-    Spec...
+    Draw player on the screen.
+
+    Parameters:
+    -----------
+    screen: Surface of the window (surface)
+    player: Player data (dict)
+    color: Dictionnary of RGB color (dict)
+    hit_box: Setting if the hit box must be show (bool)
     """
 
     player_rect = player["rect"]
@@ -48,7 +62,15 @@ def draw_player(screen, player, color, hit_box):
 
 def draw_lasers(screen, player_lasers, invader_lasers, color, hit_box):
     """
-    Spec...
+    Draw laser on the screen.
+
+    Parameters:
+    -----------
+    screen: Surface of the window (Surface)
+    player_lasers: List of rect of the player laser (Rect)
+    invader_lasers: List of rect of the invader laser (Rect)
+    color: Dictionnary of RGB color (dict)
+    hit_box: Setting if the hit box must be show (bool)
     """
 
     # Draw the player lasers.

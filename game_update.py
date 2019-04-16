@@ -80,7 +80,12 @@ def keyboard_input(game_data):
 
 def player_move(player, offset):
     """
-    Spec...
+    Move the player.
+
+    Parameters:
+    -----------
+    player: Player data (dict)
+    offset: Offset on the x axis (int)
     """
 
     player["hitBox"][0] += offset

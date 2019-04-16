@@ -1,5 +1,5 @@
 """
-doc
+Contain invader function.
 """
 
 from pygame import Rect
@@ -9,7 +9,16 @@ from laser import invader_shoot
 
 def create_invader_shape(pixel_size, invader_position):
     """
-    Spec...
+    Create the invader pixel art in function of the pixel size.
+
+    Parametes:
+    ----------
+    pixel_size: Size of the pixel (int)
+    invader_position: Position (top left corner) of the invader (list)
+
+    Return:
+    -------
+    invader_array: list of rectangle to create the shape on the screen. (list)
     """
 
     invader_matrix = [
