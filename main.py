@@ -3,7 +3,7 @@ Space Invader game just for fun ;)
 
 Version:
 --------
-0.1.1
+0.2.0
 
 Controls:
 ---------
@@ -39,7 +39,7 @@ def game(screen, clock, font):
     """
 
     # Setup game_data.
-    game_data = setup_data(screen.get_height())
+    game_data = setup_data(screen.get_height(), screen.get_width())
     running = True
     while running:
 
@@ -52,6 +52,7 @@ def game(screen, clock, font):
 
             if event.type == pg.QUIT:
                 running = False
+                pg.quit()
                 quit()
 
         # Pause the game is ESCAPE is pressed.
@@ -97,9 +98,8 @@ def main():
         "color_white": (255, 255, 255)
     }
 
-
-    # Setup window of 300 by 400 pixel.
-    display_size = [300, 400]
+    # Setup window of 500 by 400 pixel.
+    display_size = [500, 400]
     screen = pg.display.set_mode(display_size)
 
     # Set the windows title

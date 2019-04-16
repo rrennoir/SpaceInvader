@@ -17,7 +17,7 @@ def blit_text(screen, text, pos, font, color):
 
     text = [text.split(' ') for text in text.splitlines()]
     space = font.size(' ')[0]  # The width of a space.
-    max_width = 300
+    max_width = screen.get_width()
     x_pos = pos[0]
     y_pos = pos[1]
 
