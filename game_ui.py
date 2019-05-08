@@ -22,10 +22,10 @@ def intro(screen, font_title, font_text, font_color):
     text_to_print_intro_2 = "Press SPACE to play or\n press ESCAPE to exit."
 
     blit_text(screen, text_to_print_intro,
-              (screen_half_width - 125, screen_half_heigth - 110), font_title, font_color)
+              (screen_half_width - 115, screen_half_heigth - 110), font_title, font_color)
 
     blit_text(screen, text_to_print_intro_2,
-              (screen_half_width - 75, screen_half_heigth - 25), font_text, font_color)
+              (screen_half_width - 95, screen_half_heigth - 25), font_text, font_color)
 
     pg.display.update()
 
@@ -65,9 +65,9 @@ def outro(result, screen, font_title_result, font, font_color):
     text_to_print_end_game = "Press SPACE to try again \nor press ESCAPE to exit."
 
     blit_text(screen, result,
-              (screen_half_width - 70, screen_half_heigth - 110), font_title_result, font_color)
+              (screen_half_width - 80, screen_half_heigth - 110), font_title_result, font_color)
     blit_text(screen, text_to_print_end_game,
-              (screen_half_width - 85, screen_half_heigth - 25), font, font_color)
+              (screen_half_width - 115, screen_half_heigth - 25), font, font_color)
 
     pg.display.update()
     pg.time.delay(1000)
@@ -118,9 +118,9 @@ def pause(screen, font_title, font, font_color):
     text = "Press SPACE to resume"
 
     blit_text(screen, text_title,
-              (screen_half_width - 35, screen_half_heigth - 100), font_title, font_color)
+              (screen_half_width - 45, screen_half_heigth - 100), font_title, font_color)
     blit_text(screen, text,
-              (screen_half_width - 70, screen_half_heigth - 15), font, font_color)
+              (screen_half_width - 90, screen_half_heigth - 15), font, font_color)
 
     pg.display.flip()
     screen.blit(screen, (0, 0))

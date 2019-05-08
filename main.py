@@ -93,8 +93,8 @@ def main():
 
     # Setup the font.
     font = {
-        "basic": pg.font.SysFont("Comic Sans MS", 15),
-        "title": pg.font.SysFont("Comic Sans MS", 30),
+        "basic": pg.font.SysFont("monospace", 15),
+        "title": pg.font.SysFont("monospace", 30),
         "color_white": (255, 255, 255)
     }
 
